@@ -2,10 +2,12 @@ package container
 
 import (
 	"beep/internal/application/repository"
+	"beep/internal/application/service"
 	"beep/internal/application/service/captcha"
 	"beep/internal/application/service/file"
 	"beep/internal/application/service/vector"
 	"beep/internal/config"
+	"beep/internal/handler"
 	"beep/internal/router"
 	"beep/internal/types/interfaces"
 	"context"
@@ -40,11 +42,14 @@ func NewContainer() *dig.Container {
 
 	// 数据层
 	must(container.Provide(repository.NewUserRepo))
+	must(container.Provide(repository.NewWorkspaceRepo))
+	must(container.Provide(repository.NewUserWorkspaceRepo))
 
 	// 服务层
+	must(container.Provide(service.NewUserService))
 
 	// handler
-
+	must(container.Provide(handler.NewUserHandler))
 	// gin engine
 	must(container.Provide(router.InitRouter))
 	return container

@@ -15,5 +15,6 @@ type UserRepo interface {
 }
 
 type UserService interface {
-	// TODO user service
+	Register(ctx context.Context, req types.RegisterReq) error
+	Login(ctx context.Context, req types.LoginReq) (*types.User, error)
 }

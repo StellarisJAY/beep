@@ -2,6 +2,7 @@ package router
 
 import (
 	"beep/internal/config"
+	"beep/internal/handler"
 	"beep/internal/middleware"
 	"io"
 	"os"
@@ -17,6 +18,7 @@ type Params struct {
 	Redis  *redis.Client
 	Config *config.Config
 	//TODO handlers
+	UserHandler *handler.UserHandler
 }
 
 func InitRouter(params Params) (*gin.Engine, error) {
@@ -35,7 +37,8 @@ func InitRouter(params Params) (*gin.Engine, error) {
 	r.Use(middleware.CORS())                                               // 跨域中间件
 
 	v1 := r.Group("/api/v1")
-	v1.Use(middleware.Auth(params.Config, params.Redis))
-
+	{
+		v1.POST("/user/register", params.UserHandler.Register)
+	}
 	return r, nil
 }

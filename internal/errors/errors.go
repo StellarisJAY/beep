@@ -14,6 +14,7 @@ const (
 	ErrUnauthorized   ErrorCode = 401
 	ErrForbidden      ErrorCode = 403
 	ErrNotFound       ErrorCode = 404
+	ErrConflict       ErrorCode = 409
 	ErrInternalServer ErrorCode = 500
 )
 
@@ -33,41 +34,69 @@ func (e *ServiceError) WithDetails(details any) *ServiceError {
 	return e
 }
 
-func NewBadRequestError(message string) *ServiceError {
+func NewBadRequestError(message string, details any) *ServiceError {
+	if message == "" {
+		message = "bad request"
+	}
 	return &ServiceError{
 		Code:    ErrBadRequest,
 		Message: message,
+		Details: details,
 	}
 }
 
-func NewUnauthorizedError(message string) *ServiceError {
+func NewUnauthorizedError(message string, details any) *ServiceError {
+	if message == "" {
+		message = "unauthorized"
+	}
 	return &ServiceError{
 		Code:    ErrUnauthorized,
 		Message: message,
+		Details: details,
 	}
 }
 
-func NewForbiddenError(message string) *ServiceError {
+func NewForbiddenError(message string, details any) *ServiceError {
+	if message == "" {
+		message = "forbidden"
+	}
 	return &ServiceError{
 		Code:    ErrForbidden,
 		Message: message,
+		Details: details,
 	}
 }
 
-func NewNotFoundError(message string) *ServiceError {
+func NewNotFoundError(message string, details any) *ServiceError {
+	if message == "" {
+		message = "not found"
+	}
 	return &ServiceError{
 		Code:    ErrNotFound,
 		Message: message,
+		Details: details,
 	}
 }
 
-func NewInternalServerError(message string) *ServiceError {
+func NewConflictError(message string, details any) *ServiceError {
 	if message == "" {
-		message = "服务器内部错误"
+		message = "conflict"
+	}
+	return &ServiceError{
+		Code:    ErrConflict,
+		Message: message,
+		Details: details,
+	}
+}
+
+func NewInternalServerError(message string, detail any) *ServiceError {
+	if message == "" {
+		message = "internal server error"
 	}
 	return &ServiceError{
 		Code:    ErrInternalServer,
 		Message: message,
+		Details: detail,
 	}
 }
 
