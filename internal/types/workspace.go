@@ -3,8 +3,8 @@ package types
 // Workspace 工作空间
 type Workspace struct {
 	BaseEntity
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string `json:"name" gorm:"not null;type:varchar(64);'"`
+	Description string `json:"description" gorm:"not null;type:varchar(255)"`
 }
 
 func (Workspace) TableName() string {
@@ -23,7 +23,7 @@ const (
 // UserWorkspace 用户-工作空间关联
 type UserWorkspace struct {
 	BaseEntity
-	UserId      uint64        `json:"user_id"`
-	WorkspaceId uint64        `json:"workspace_id"`
-	Role        WorkspaceRole `json:"role"`
+	UserId      int64         `json:"user_id" gorm:"not null;"`
+	WorkspaceId int64         `json:"workspace_id" gorm:"not null;"`
+	Role        WorkspaceRole `json:"role" gorm:"default:'owner';not null;type:varchar(16)"`
 }

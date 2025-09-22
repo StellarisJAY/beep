@@ -21,7 +21,7 @@ type ModelFactory struct {
 	Name          string           `json:"name"`
 	Type          ModelFactoryType `json:"type"`
 	EncryptConfig string           `json:"encrypt_config"`
-	WorkspaceId   uint64           `json:"workspace_id"`
+	WorkspaceId   int64            `json:"workspace_id"`
 }
 
 func (ModelFactory) TableName() string {
@@ -39,11 +39,11 @@ const (
 // Model 模型
 type Model struct {
 	BaseEntity
-	Name        string    `json:"name"`
-	Type        ModelType `json:"type"`
-	FactoryId   uint64    `json:"factory_id"`
-	Config      string    `json:"config"`
-	WorkspaceId uint64    `json:"workspace_id"`
+	Name        string    `json:"name" gorm:"not null;type:varchar(64);'"`
+	Type        ModelType `json:"type" gorm:"not null;type:varchar(64);'"`
+	FactoryId   int64     `json:"factory_id" gorm:"not null;"`
+	Config      string    `json:"config" gorm:"not null;type:text;'"`
+	WorkspaceId int64     `json:"workspace_id" gorm:"not null;"`
 }
 
 func (Model) TableName() string {
@@ -53,11 +53,11 @@ func (Model) TableName() string {
 // WorkspaceDefaultModel 工作空间默认模型
 type WorkspaceDefaultModel struct {
 	BaseEntity
-	WorkspaceId uint64    `json:"workspace_id"`
-	Name        string    `json:"name"`
-	Type        ModelType `json:"type"`
-	Config      string    `json:"config"`
-	FactoryId   uint64    `json:"factory_id"`
+	WorkspaceId int64     `json:"workspace_id" gorm:"not null;"`
+	Name        string    `json:"name" gorm:"not null;type:varchar(64);'"`
+	Type        ModelType `json:"type" gorm:"not null;type:varchar(16);'"`
+	Config      string    `json:"config" gorm:"not null;type:text;'"`
+	FactoryId   int64     `json:"factory_id" gorm:"not null;"`
 }
 
 func (WorkspaceDefaultModel) TableName() string {

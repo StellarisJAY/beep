@@ -3,13 +3,13 @@ package types
 // KnowledgeBase 知识库
 type KnowledgeBase struct {
 	BaseEntity
-	Name           string `json:"name"`
-	Description    string `json:"description"`
-	EmbeddingModel uint64 `json:"embedding_model"`
-	ChatModel      uint64 `json:"chat_model"`
-	WorkspaceId    uint64 `json:"workspaceId"`
-	CreateBy       uint64 `json:"createBy"`
-	LastUpdateBy   uint64 `json:"lastUpdateBy"`
+	Name           string `json:"name" gorm:"not null;type:varchar(64);"`
+	Description    string `json:"description"  gorm:"not null;type:varchar(255);"`
+	EmbeddingModel int64  `json:"embedding_model" gorm:"not null;"`
+	ChatModel      int64  `json:"chat_model" gorm:"not null;"`
+	WorkspaceId    int64  `json:"workspaceId" gorm:"not null;"`
+	CreateBy       int64  `json:"createBy"`
+	LastUpdateBy   int64  `json:"lastUpdateBy"`
 }
 
 func (*KnowledgeBase) TableName() string {
