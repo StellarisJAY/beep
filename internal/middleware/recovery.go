@@ -14,7 +14,7 @@ func Recovery() gin.RecoveryFunc {
 			stack := debug.Stack()
 			serviceErr, ok := errors.AsServiceError(e)
 			if ok {
-				slog.Error("service error", "error", serviceErr, "stack", string(stack))
+				slog.Error("service error", "error", serviceErr, "detail", serviceErr.Details, "stack", string(stack))
 				c.JSON(200, gin.H{
 					"code":    serviceErr.Code,
 					"message": serviceErr.Message,

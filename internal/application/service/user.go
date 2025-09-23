@@ -7,22 +7,30 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 )
 
 type UserServiceImpl struct {
 	userRepo          interfaces.UserRepo
 	workspaceRepo     interfaces.WorkspaceRepo
 	userWorkspaceRepo interfaces.UserWorkspaceRepo
+	redis             *redis.Client
 }
 
-func NewUserService(userRepo interfaces.UserRepo, workspaceRepo interfaces.WorkspaceRepo, userWorkspaceRepo interfaces.UserWorkspaceRepo) interfaces.UserService {
+func NewUserService(userRepo interfaces.UserRepo,
+	workspaceRepo interfaces.WorkspaceRepo,
+	userWorkspaceRepo interfaces.UserWorkspaceRepo,
+	redis *redis.Client) interfaces.UserService {
 	return &UserServiceImpl{
 		userRepo:          userRepo,
 		workspaceRepo:     workspaceRepo,
 		userWorkspaceRepo: userWorkspaceRepo,
+		redis:             redis,
 	}
 }
 
@@ -63,6 +71,44 @@ func (u *UserServiceImpl) Register(ctx context.Context, req types.RegisterReq) e
 	return nil
 }
 
-func (u *UserServiceImpl) Login(ctx context.Context, req types.LoginReq) (*types.User, error) {
-	panic("not implemented")
+func (u *UserServiceImpl) Login(ctx context.Context, req types.LoginReq) (*types.LoginResp, error) {
+	user, _ := u.userRepo.FindByEmail(ctx, req.Email)
+	if user == nil {
+		return nil, errors.NewError(errors.ErrLoginFailed, "邮箱或密码错误", nil)
+	}
+	hashPass := sha256.New().Sum([]byte(user.PasswordSalt + req.Password))
+	password := hex.EncodeToString(hashPass)
+	if password != user.Password {
+		return nil, errors.NewError(errors.ErrLoginFailed, "邮箱或密码错误", nil)
+	}
+	// 登录成功
+	// 查询默认工作空间
+	workspace, err := u.userWorkspaceRepo.FindUserDefaultWorkspace(ctx, user.ID)
+	if err != nil {
+		return nil, errors.NewInternalServerError("登录失败", err)
+	}
+	resp := &types.LoginResp{
+		UserInfo:      user,
+		WorkspaceInfo: workspace,
+		Token:         uuid.New().String(),
+		RefreshToken:  uuid.New().String(),
+	}
+	// 保存登录信息
+	loginInfo := &types.LoginInfo{
+		UserId:      user.ID,
+		WorkspaceId: workspace.ID,
+	}
+	data, err := json.Marshal(loginInfo)
+	if err != nil {
+		return nil, errors.NewInternalServerError("登录失败", err)
+	}
+	// 保存access_token
+	if err := u.redis.Set(ctx, "access_token:"+resp.Token, data, time.Hour).Err(); err != nil {
+		return nil, errors.NewInternalServerError("登录失败", err)
+	}
+	// 保存refresh_token
+	if err := u.redis.Set(ctx, "refresh_token:"+resp.RefreshToken, user.ID, time.Hour*24).Err(); err != nil {
+		return nil, errors.NewInternalServerError("登录失败", err)
+	}
+	return resp, nil
 }

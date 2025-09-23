@@ -47,9 +47,11 @@ func NewContainer() *dig.Container {
 
 	// 服务层
 	must(container.Provide(service.NewUserService))
+	must(container.Provide(service.NewWorkspaceService))
 
 	// handler
 	must(container.Provide(handler.NewUserHandler))
+	must(container.Provide(handler.NewWorkspaceHandler))
 	// gin engine
 	must(container.Provide(router.InitRouter))
 	return container

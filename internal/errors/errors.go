@@ -16,6 +16,7 @@ const (
 	ErrNotFound       ErrorCode = 404
 	ErrConflict       ErrorCode = 409
 	ErrInternalServer ErrorCode = 500
+	ErrLoginFailed    ErrorCode = 401001
 )
 
 // ServiceError 自定义错误类型
@@ -27,6 +28,14 @@ type ServiceError struct {
 
 func (e *ServiceError) Error() string {
 	return fmt.Sprintf("error code: %d, error message: %s", e.Code, e.Message)
+}
+
+func NewError(code ErrorCode, msg string, details any) *ServiceError {
+	return &ServiceError{
+		Code:    code,
+		Message: msg,
+		Details: details,
+	}
 }
 
 func (e *ServiceError) WithDetails(details any) *ServiceError {

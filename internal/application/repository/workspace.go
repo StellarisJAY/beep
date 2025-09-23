@@ -23,11 +23,26 @@ func (w *WorkspaceRepo) Create(ctx context.Context, workspace *types.Workspace) 
 }
 
 func (w *WorkspaceRepo) Update(ctx context.Context, workspace *types.Workspace) error {
-	//TODO implement me
-	panic("implement me")
+	return w.db.WithContext(ctx).Updates(workspace).Error
 }
 
 func (w *WorkspaceRepo) FindById(ctx context.Context, id int64) (*types.Workspace, error) {
-	//TODO implement me
-	panic("implement me")
+	var workspace *types.Workspace
+	err := w.db.WithContext(ctx).Model(&types.Workspace{}).
+		Where("id = ?", id).
+		First(&workspace).Error
+	if err != nil {
+		return nil, err
+	}
+	return workspace, nil
+}
+
+// workspaceScope gorm 工作空间查询注入
+func workspaceScope(ctx context.Context) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if workspaceId, ok := ctx.Value(types.WorkspaceIdContextKey).(int64); ok {
+			db = db.Where("workspace_id = ?", workspaceId)
+		}
+		return db
+	}
 }

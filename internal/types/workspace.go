@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 // Workspace 工作空间
 type Workspace struct {
 	BaseEntity
@@ -26,4 +28,26 @@ type UserWorkspace struct {
 	UserId      int64         `json:"user_id" gorm:"not null;"`
 	WorkspaceId int64         `json:"workspace_id" gorm:"not null;"`
 	Role        WorkspaceRole `json:"role" gorm:"default:'owner';not null;type:varchar(16)"`
+}
+
+// WorkspaceMember 工作空间成员
+type WorkspaceMember struct {
+	Id            int64         `json:"id,string"`
+	Name          string        `json:"name"`
+	Email         string        `json:"email"`
+	Role          WorkspaceRole `json:"role"`
+	LastLoginTime *time.Time    `json:"last_login_time"`
+}
+
+// InviteWorkspaceMemberReq 邀请工作空间成员
+type InviteWorkspaceMemberReq struct {
+	WorkspaceId int64         `json:"workspace_id,string"`
+	Emails      []string      `json:"emails"` // 邀请的邮箱列表
+	Role        WorkspaceRole `json:"role"`   // 加入后的角色
+}
+
+type SetWorkspaceRoleReq struct {
+	WorkspaceId int64         `json:"workspace_id,string"`
+	UserId      int64         `json:"user_id,string"`
+	Role        WorkspaceRole `json:"role"`
 }

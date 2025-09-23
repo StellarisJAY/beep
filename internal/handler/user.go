@@ -29,3 +29,15 @@ func (u *UserHandler) Register(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, ok())
 }
+
+func (u *UserHandler) Login(c *gin.Context) {
+	var req types.LoginReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		panic(errors.NewBadRequestError("", err))
+	}
+	resp, err := u.userService.Login(c.Request.Context(), req)
+	if err != nil {
+		panic(err)
+	}
+	c.JSON(http.StatusOK, okWithData(resp))
+}

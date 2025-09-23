@@ -18,7 +18,8 @@ type Params struct {
 	Redis  *redis.Client
 	Config *config.Config
 	//TODO handlers
-	UserHandler *handler.UserHandler
+	UserHandler      *handler.UserHandler
+	WorkspaceHandler *handler.WorkspaceHandler
 }
 
 func InitRouter(params Params) (*gin.Engine, error) {
@@ -38,7 +39,18 @@ func InitRouter(params Params) (*gin.Engine, error) {
 
 	v1 := r.Group("/api/v1")
 	{
-		v1.POST("/user/register", params.UserHandler.Register)
+		v1.POST("/register", params.UserHandler.Register)
+		v1.POST("/login", params.UserHandler.Login)
+	}
+	// Workspace
+	w := v1.Group("/workspace")
+	{
+		w.Use(middleware.Auth(params.Config, params.Redis))
+		w.GET("/members", params.WorkspaceHandler.ListMember)
+		w.GET("/list", params.WorkspaceHandler.List)
+		w.POST("/invite", params.WorkspaceHandler.InviteMember)
+		w.POST("/switch/:id", params.WorkspaceHandler.SwitchWorkspace)
+		w.POST("/role", params.WorkspaceHandler.SetRole)
 	}
 	return r, nil
 }

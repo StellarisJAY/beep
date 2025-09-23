@@ -16,5 +16,5 @@ type UserRepo interface {
 
 type UserService interface {
 	Register(ctx context.Context, req types.RegisterReq) error
-	Login(ctx context.Context, req types.LoginReq) (*types.User, error)
+	Login(ctx context.Context, req types.LoginReq) (*types.LoginResp, error)
 }
