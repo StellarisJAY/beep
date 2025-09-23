@@ -1,0 +1,9 @@
+{
+  "name": "OpenAI-Compatible",
+  "sdk_type": "openai_compatible",
+  "default_config": {
+    "base_url": "",
+    "api_key": ""
+  },
+  "models": []
+}

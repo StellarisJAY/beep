@@ -6,6 +6,12 @@ type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
+	Total   int         `json:"total"`
+}
+
+func (r *Response) withTotal(total int) *Response {
+	r.Total = total
+	return r
 }
 
 func ok() *Response {

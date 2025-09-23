@@ -1,0 +1,172 @@
+{
+  "name": "OpenAI",
+  "sdk_type": "openai",
+  "default_config": {
+    "base_url": "",
+    "api_key": ""
+  },
+  "models": [
+    {
+      "llm_name": "gpt-5",
+      "tags": "LLM,CHAT,400k,IMAGE2TEXT",
+      "max_tokens": 400000,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "gpt-5-mini",
+      "tags": "LLM,CHAT,400k,IMAGE2TEXT",
+      "max_tokens": 400000,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "gpt-5-nano",
+      "tags": "LLM,CHAT,400k,IMAGE2TEXT",
+      "max_tokens": 400000,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "gpt-5-chat-latest",
+      "tags": "LLM,CHAT,400k,IMAGE2TEXT",
+      "max_tokens": 400000,
+      "model_type": "chat",
+      "function_call": false
+    },
+    {
+      "llm_name": "gpt-4.1",
+      "tags": "LLM,CHAT,1M,IMAGE2TEXT",
+      "max_tokens": 1047576,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "gpt-4.1-mini",
+      "tags": "LLM,CHAT,1M,IMAGE2TEXT",
+      "max_tokens": 1047576,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "gpt-4.1-nano",
+      "tags": "LLM,CHAT,1M,IMAGE2TEXT",
+      "max_tokens": 1047576,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "gpt-4.5-preview",
+      "tags": "LLM,CHAT,128K",
+      "max_tokens": 128000,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "o3",
+      "tags": "LLM,CHAT,200K,IMAGE2TEXT",
+      "max_tokens": 200000,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "o4-mini",
+      "tags": "LLM,CHAT,200K,IMAGE2TEXT",
+      "max_tokens": 200000,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "o4-mini-high",
+      "tags": "LLM,CHAT,200K,IMAGE2TEXT",
+      "max_tokens": 200000,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "gpt-4o-mini",
+      "tags": "LLM,CHAT,128K,IMAGE2TEXT",
+      "max_tokens": 128000,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "gpt-4o",
+      "tags": "LLM,CHAT,128K,IMAGE2TEXT",
+      "max_tokens": 128000,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "gpt-3.5-turbo",
+      "tags": "LLM,CHAT,4K",
+      "max_tokens": 4096,
+      "model_type": "chat",
+      "function_call": false
+    },
+    {
+      "llm_name": "gpt-3.5-turbo-16k-0613",
+      "tags": "LLM,CHAT,16k",
+      "max_tokens": 16385,
+      "model_type": "chat",
+      "function_call": false
+    },
+    {
+      "llm_name": "text-embedding-ada-002",
+      "tags": "TEXT EMBEDDING,8K",
+      "max_tokens": 8191,
+      "model_type": "embedding",
+      "function_call": false
+    },
+    {
+      "llm_name": "text-embedding-3-small",
+      "tags": "TEXT EMBEDDING,8K",
+      "max_tokens": 8191,
+      "model_type": "embedding",
+      "function_call": false
+    },
+    {
+      "llm_name": "text-embedding-3-large",
+      "tags": "TEXT EMBEDDING,8K",
+      "max_tokens": 8191,
+      "model_type": "embedding",
+      "function_call": false
+    },
+    {
+      "llm_name": "whisper-1",
+      "tags": "SPEECH2TEXT",
+      "max_tokens": 26214400,
+      "model_type": "speech2text",
+      "function_call": false
+    },
+    {
+      "llm_name": "gpt-4",
+      "tags": "LLM,CHAT,8K",
+      "max_tokens": 8191,
+      "model_type": "chat",
+      "function_call": false
+    },
+    {
+      "llm_name": "gpt-4-turbo",
+      "tags": "LLM,CHAT,8K",
+      "max_tokens": 8191,
+      "model_type": "chat",
+      "function_call": true
+    },
+    {
+      "llm_name": "gpt-4-32k",
+      "tags": "LLM,CHAT,32K",
+      "max_tokens": 32768,
+      "model_type": "chat",
+      "function_call": false
+    },
+    {
+      "llm_name": "tts-1",
+      "tags": "TTS",
+      "max_tokens": 2048,
+      "model_type": "tts",
+      "function_call": false
+    }
+
+  ]
+}

@@ -17,8 +17,8 @@ logger:
   format: json
   level: debug
   path:
-jwt:
-  secret: abcd1234
+encrypt:
+  secret: dekaldiek12kdox7
 fileStore: minio
 minio:
   endpoint: localhost:9000
@@ -27,8 +27,7 @@ minio:
   bucket: flowingdocs
 vectorStore: milvus
 milvus:
-  address: localhost
-  port: 5173
+  address: localhost:19530
 worker: gopool
 gopool:
   size: 16

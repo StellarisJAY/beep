@@ -1,5 +1,7 @@
 package types
 
+import "gorm.io/gorm"
+
 type ModelFactoryType string
 
 const (
@@ -18,20 +20,34 @@ type ModelFactoryConfig struct {
 // ModelFactory 模型供应商
 type ModelFactory struct {
 	BaseEntity
-	Name          string           `json:"name"`
-	Type          ModelFactoryType `json:"type"`
-	EncryptConfig string           `json:"encrypt_config"`
-	WorkspaceId   int64            `json:"workspace_id"`
+	Name        string           `json:"name" gorm:"type:varchar(64);not null;"`      // 模型供应商名称
+	Type        ModelFactoryType `json:"type" gorm:"type:varchar(64);not null;"`      // 模型供应商类型
+	BaseUrl     string           `json:"base_url" gorm:"type:varchar(255);not null;"` // 模型供应商基础url
+	APIKey      string           `json:"api_key" gorm:"type:varchar(255);not null;"`  // 模型供应商api key
+	WorkspaceId int64            `json:"workspace_id" gorm:"not null;"`               // 工作空间id
 }
 
-func (ModelFactory) TableName() string {
+func (*ModelFactory) TableName() string {
 	return "model_factories"
+}
+
+func (m *ModelFactory) BeforeCreate(tx *gorm.DB) error {
+	if err := m.BaseEntity.BeforeCreate(tx); err != nil {
+		return err
+	}
+	if m.WorkspaceId == 0 {
+		// 从context中获取workspaceId
+		if workspaceId, ok := tx.Statement.Context.Value(WorkspaceIdContextKey).(int64); ok {
+			m.WorkspaceId = workspaceId
+		}
+	}
+	return nil
 }
 
 type ModelType string
 
 const (
-	ModelTypeLLM       ModelType = "llm"
+	ModelTypeChat      ModelType = "chat"
 	ModelTypeEmbedding ModelType = "embedding"
 	ModelTypeReranking ModelType = "reranking"
 )
@@ -39,15 +55,30 @@ const (
 // Model 模型
 type Model struct {
 	BaseEntity
-	Name        string    `json:"name" gorm:"not null;type:varchar(64);'"`
-	Type        ModelType `json:"type" gorm:"not null;type:varchar(64);'"`
-	FactoryId   int64     `json:"factory_id" gorm:"not null;"`
-	Config      string    `json:"config" gorm:"not null;type:text;'"`
-	WorkspaceId int64     `json:"workspace_id" gorm:"not null;"`
+	Name         string    `json:"name" gorm:"not null;type:varchar(64);'"`  // 模型名称
+	Type         ModelType `json:"type" gorm:"not null;type:varchar(64);'"`  // 模型类型
+	Tags         string    `json:"tags" gorm:"not null;type:varchar(255);'"` // 模型标签
+	MaxTokens    int64     `json:"max_tokens" gorm:"not null;type:bigint;'"` // 模型最大token数
+	FunctionCall bool      `json:"function_call" gorm:"not null;'"`          // 模型是否支持函数调用
+	FactoryId    int64     `json:"factory_id" gorm:"not null;"`
+	WorkspaceId  int64     `json:"workspace_id" gorm:"not null;"`
 }
 
-func (Model) TableName() string {
+func (*Model) TableName() string {
 	return "models"
+}
+
+func (m *Model) BeforeCreate(tx *gorm.DB) error {
+	if err := m.BaseEntity.BeforeCreate(tx); err != nil {
+		return err
+	}
+	if m.WorkspaceId == 0 {
+		// 从context中获取workspaceId
+		if workspaceId, ok := tx.Statement.Context.Value(WorkspaceIdContextKey).(int64); ok {
+			m.WorkspaceId = workspaceId
+		}
+	}
+	return nil
 }
 
 // WorkspaceDefaultModel 工作空间默认模型
@@ -62,4 +93,53 @@ type WorkspaceDefaultModel struct {
 
 func (WorkspaceDefaultModel) TableName() string {
 	return "workspace_default_models"
+}
+
+type CreateModelFactoryReq struct {
+	Name    string           `json:"name" binding:"required"`
+	Type    ModelFactoryType `json:"type" binding:"required"`
+	BaseUrl string           `json:"base_url"`
+	ApiKey  string           `json:"api_key"`
+}
+
+type UpdateModelFactoryReq struct {
+	Id      int64  `json:"id" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	BaseUrl string `json:"base_url"`
+	ApiKey  string `json:"api_key"`
+}
+
+type ListModelQuery struct {
+	FactoryId int64     `json:"factory_id" form:"factory_id"`
+	Type      ModelType `json:"type" form:"type"`
+}
+
+type ModelDetail struct {
+	Id           int64     `json:"id"`
+	Name         string    `json:"name"`          // 模型名称
+	Type         ModelType `json:"type"`          // 模型类型
+	Tags         string    `json:"tags"`          // 模型标签
+	MaxTokens    int64     `json:"max_tokens"`    // 模型最大token数
+	FunctionCall bool      `json:"function_call"` // 模型是否支持函数调用
+	FactoryId    int64     `json:"factory_id"`
+	WorkspaceId  int64     `json:"workspace_id"`
+
+	ApiKey  string `json:"api_key"`
+	BaseUrl string `json:"base_url"`
+}
+
+type ModelFactoryTemplate struct {
+	Name    string `json:"name"`
+	SdkType string `json:"sdk_type"`
+	Models  []struct {
+		Name         string    `json:"llm_name"`
+		Type         ModelType `json:"type"`
+		Tags         string    `json:"tags"`
+		MaxTokens    int64     `json:"max_tokens"`
+		FunctionCall bool      `json:"function_call"`
+	} `json:"models"`
+	DefaultConfig struct {
+		ApiKey  string `json:"api_key"`
+		BaseUrl string `json:"base_url"`
+	} `json:"default_config"`
 }

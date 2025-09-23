@@ -4,6 +4,7 @@ import (
 	"beep/internal/application/repository"
 	"beep/internal/application/service"
 	"beep/internal/application/service/captcha"
+	"beep/internal/application/service/encrypt"
 	"beep/internal/application/service/file"
 	"beep/internal/application/service/vector"
 	"beep/internal/config"
@@ -39,19 +40,28 @@ func NewContainer() *dig.Container {
 	must(container.Provide(InitAntsPool))
 	// 验证码
 	must(container.Provide(captcha.New))
+	// 加密
+	must(container.Provide(encrypt.NewAesEncryptService))
 
 	// 数据层
 	must(container.Provide(repository.NewUserRepo))
 	must(container.Provide(repository.NewWorkspaceRepo))
 	must(container.Provide(repository.NewUserWorkspaceRepo))
+	must(container.Provide(repository.NewKnowledgeBaseRepo))
+	must(container.Provide(repository.NewModelRepo))
+	must(container.Provide(repository.NewModelFactoryRepo))
 
 	// 服务层
 	must(container.Provide(service.NewUserService))
 	must(container.Provide(service.NewWorkspaceService))
+	must(container.Provide(service.NewKnowledgeBaseService))
+	must(container.Provide(service.NewModelService))
 
 	// handler
 	must(container.Provide(handler.NewUserHandler))
 	must(container.Provide(handler.NewWorkspaceHandler))
+	must(container.Provide(handler.NewKnowledgeBaseHandler))
+	must(container.Provide(handler.NewModelHandler))
 	// gin engine
 	must(container.Provide(router.InitRouter))
 	return container

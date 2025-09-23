@@ -20,3 +20,9 @@ func (b *BaseEntity) BeforeCreate(tx *gorm.DB) error {
 	}
 	return nil
 }
+
+type BaseQuery struct {
+	Paged    bool `form:"paged"`
+	PageNum  int  `form:"page_num"`
+	PageSize int  `form:"page_size"`
+}

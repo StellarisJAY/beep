@@ -35,9 +35,9 @@ type Config struct {
 		Level  string `yaml:"level"`
 		Path   string `yaml:"path"`
 	} `yaml:"logger"`
-	Jwt struct {
+	Encrypt struct {
 		Secret string `yaml:"secret"`
-	} `yaml:"jwt"`
+	} `yaml:"encrypt"`
 	FileStore string `yaml:"fileStore"`
 	Minio     struct {
 		Endpoint  string `yaml:"endpoint"`

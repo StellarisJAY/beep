@@ -1,5 +1,7 @@
 package types
 
+import "gorm.io/gorm"
+
 type AgentType string
 
 const (
@@ -20,4 +22,17 @@ type Agent struct {
 
 func (*Agent) TableName() string {
 	return "agents"
+}
+
+func (a *Agent) BeforeCreate(tx *gorm.DB) error {
+	if err := a.BaseEntity.BeforeCreate(tx); err != nil {
+		return err
+	}
+	if a.WorkspaceId == 0 {
+		// 从context中获取workspaceId
+		if workspaceId, ok := tx.Statement.Context.Value(WorkspaceIdContextKey).(int64); ok {
+			a.WorkspaceId = workspaceId
+		}
+	}
+	return nil
 }

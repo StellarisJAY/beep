@@ -18,8 +18,10 @@ type Params struct {
 	Redis  *redis.Client
 	Config *config.Config
 	//TODO handlers
-	UserHandler      *handler.UserHandler
-	WorkspaceHandler *handler.WorkspaceHandler
+	UserHandler          *handler.UserHandler
+	WorkspaceHandler     *handler.WorkspaceHandler
+	KnowledgeBaseHandler *handler.KnowledgeBaseHandler
+	ModelHandler         *handler.ModelHandler
 }
 
 func InitRouter(params Params) (*gin.Engine, error) {
@@ -51,6 +53,25 @@ func InitRouter(params Params) (*gin.Engine, error) {
 		w.POST("/invite", params.WorkspaceHandler.InviteMember)
 		w.POST("/switch/:id", params.WorkspaceHandler.SwitchWorkspace)
 		w.POST("/role", params.WorkspaceHandler.SetRole)
+	}
+	// 知识库
+	k := v1.Group("/kb")
+	{
+		k.Use(middleware.Auth(params.Config, params.Redis))
+		k.GET("/list", params.KnowledgeBaseHandler.List)
+		k.POST("/create", params.KnowledgeBaseHandler.Create)
+		k.PUT("/update", params.KnowledgeBaseHandler.Update)
+		k.DELETE("/delete/:id", params.KnowledgeBaseHandler.Delete)
+
+	}
+	// 模型
+	m := v1.Group("/model")
+	{
+		m.Use(middleware.Auth(params.Config, params.Redis))
+		m.GET("/factory/list", params.ModelHandler.ListModelFactory)
+		m.GET("/list", params.ModelHandler.ListModel)
+		m.POST("/factory/create", params.ModelHandler.CreateModelFactory)
+		m.PUT("/factory/update", params.ModelHandler.UpdateFactory)
 	}
 	return r, nil
 }
