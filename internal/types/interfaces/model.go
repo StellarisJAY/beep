@@ -30,4 +30,6 @@ type ModelService interface {
 	ListFactory(ctx context.Context) ([]*types.ModelFactory, error)
 	// ListModels 列表模型
 	ListModels(ctx context.Context, query types.ListModelQuery) ([]*types.Model, error)
+	// GetModelDetail 获取模型详情
+	GetModelDetail(ctx context.Context, id int64) (*types.ModelDetail, error)
 }

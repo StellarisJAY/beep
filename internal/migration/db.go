@@ -19,7 +19,9 @@ func MigrateDatabase(db *gorm.DB, config *config.Config) error {
 		types.Model{},
 		types.Workspace{},
 		types.UserWorkspace{},
-		types.KnowledgeBase{}); err != nil {
+		types.KnowledgeBase{},
+		types.Document{},
+		types.MCPServer{}); err != nil {
 		return err
 	}
 	slog.Info("database migrated")

@@ -124,8 +124,10 @@ type ModelDetail struct {
 	FactoryId    int64     `json:"factory_id"`
 	WorkspaceId  int64     `json:"workspace_id"`
 
-	ApiKey  string `json:"api_key"`
-	BaseUrl string `json:"base_url"`
+	FactoryType     ModelFactoryType `json:"factory_type"` // 模型供应商类型
+	ApiKey          string           `json:"api_key"`      // 模型供应商api key
+	ApiKeyDecrypted string           `json:"-"`            // 解密的APIKey
+	BaseUrl         string           `json:"base_url"`     // 模型供应商基础url
 }
 
 type ModelFactoryTemplate struct {
@@ -133,7 +135,7 @@ type ModelFactoryTemplate struct {
 	SdkType string `json:"sdk_type"`
 	Models  []struct {
 		Name         string    `json:"llm_name"`
-		Type         ModelType `json:"type"`
+		Type         ModelType `json:"model_type"`
 		Tags         string    `json:"tags"`
 		MaxTokens    int64     `json:"max_tokens"`
 		FunctionCall bool      `json:"function_call"`
@@ -142,4 +144,15 @@ type ModelFactoryTemplate struct {
 		ApiKey  string `json:"api_key"`
 		BaseUrl string `json:"base_url"`
 	} `json:"default_config"`
+}
+
+type ChatModelOption struct {
+	Temperature      *float32 `json:"temperature"`
+	Thinking         *bool    `json:"thinking"`
+	TopP             *float32 `json:"top_p,omitempty"`
+	Stop             []string `json:"stop,omitempty"`
+	PresencePenalty  *float32 `json:"presence_penalty,omitempty"`
+	ResponseFormat   string   `json:"response_format,omitempty"`
+	Seed             *int     `json:"seed,omitempty"`
+	FrequencyPenalty *float32 `json:"frequency_penalty,omitempty"`
 }

@@ -15,3 +15,8 @@ type VectorStore interface {
 	ListChunks(ctx context.Context, coll string, query types.ListChunksQuery) ([]types.QueriedChunk, int64, error) // 列表切片
 	Search(ctx context.Context, coll string, req types.SearchReq) ([]types.QueriedChunk, error)
 }
+
+type ParseService interface {
+	Parse(ctx context.Context, info types.ParseInfo) error // 解析文档
+	CancelParse(ctx context.Context, docId int64) error    // 取消解析文档
+}

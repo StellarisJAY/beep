@@ -14,6 +14,11 @@ func (r *Response) withTotal(total int) *Response {
 	return r
 }
 
+func (r *Response) withData(result interface{}) *Response {
+	r.Data = result
+	return r
+}
+
 func ok() *Response {
 	return &Response{
 		Code:    http.StatusOK,

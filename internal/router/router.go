@@ -22,6 +22,8 @@ type Params struct {
 	WorkspaceHandler     *handler.WorkspaceHandler
 	KnowledgeBaseHandler *handler.KnowledgeBaseHandler
 	ModelHandler         *handler.ModelHandler
+	MCPServerHandler     *handler.MCPServerHandler
+	DocumentHandler      *handler.DocumentHandler
 }
 
 func InitRouter(params Params) (*gin.Engine, error) {
@@ -72,6 +74,26 @@ func InitRouter(params Params) (*gin.Engine, error) {
 		m.GET("/list", params.ModelHandler.ListModel)
 		m.POST("/factory/create", params.ModelHandler.CreateModelFactory)
 		m.PUT("/factory/update", params.ModelHandler.UpdateFactory)
+	}
+
+	// MCP服务器
+	mcp := v1.Group("/mcp")
+	{
+		mcp.Use(middleware.Auth(params.Config, params.Redis))
+		mcp.POST("/create", params.MCPServerHandler.Create)
+		mcp.GET("/list", params.MCPServerHandler.List)
+		mcp.PUT("/update", params.MCPServerHandler.Update)
+		mcp.DELETE("/delete/:id", params.MCPServerHandler.Delete)
+	}
+
+	// 文档
+	doc := v1.Group("/doc")
+	{
+		doc.Use(middleware.Auth(params.Config, params.Redis))
+		doc.POST("/create", params.DocumentHandler.CreateFromFile)
+		doc.GET("/list", params.DocumentHandler.List)
+		doc.DELETE("/delete/:id", params.DocumentHandler.Delete)
+		doc.GET("/download/:id", params.DocumentHandler.Download)
 	}
 	return r, nil
 }

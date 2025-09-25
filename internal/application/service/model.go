@@ -130,3 +130,15 @@ func initModelFactoryDefault() {
 		templates = append(templates, template)
 	}
 }
+
+func (m *ModelService) GetModelDetail(ctx context.Context, id int64) (*types.ModelDetail, error) {
+	detail, err := m.modelRepo.GetDetail(ctx, id)
+	if err != nil {
+		return nil, errors.NewInternalServerError("获取模型详情失败", err)
+	}
+	detail.ApiKeyDecrypted, err = m.encryptService.Decrypt(ctx, detail.ApiKey)
+	if err != nil {
+		return nil, errors.NewInternalServerError("获取模型详情失败，APIKey解密失败", err)
+	}
+	return detail, nil
+}
