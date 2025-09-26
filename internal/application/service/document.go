@@ -162,19 +162,20 @@ func (d *DocumentService) Parse(ctx context.Context, id int64) error {
 	if err != nil {
 		return errors.NewInternalServerError("解析文档失败，文件下载失败", err)
 	}
-	content, err := io.ReadAll(reader)
+	data, err := io.ReadAll(reader)
 	if err != nil {
 		return errors.NewInternalServerError("解析文档失败，文件读取失败", err)
 	}
-
 	parseInfo := types.ParseInfo{
-		Content:              string(content),
+		Content:              data,
 		DocId:                document.ID,
 		KbId:                 kb.ID,
 		ChunkOptions:         kb.ChunkOptions,
 		Embedder:             embedder,
 		ChatModel:            chatModel,
 		EnableKnowledgeGraph: false,
+		OriginalFileName:     document.OriginalFileName,
+		FileType:             document.FileType,
 	}
 
 	if err := d.parseService.Parse(ctx, parseInfo); err != nil {

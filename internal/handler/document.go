@@ -87,3 +87,14 @@ func (h *DocumentHandler) Download(c *gin.Context) {
 	}
 	c.JSON(200, ok().withData(url))
 }
+
+func (h *DocumentHandler) Parse(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		panic(errors.NewBadRequestError("", err))
+	}
+	if err := h.service.Parse(c.Request.Context(), id); err != nil {
+		panic(err)
+	}
+	c.JSON(200, ok())
+}

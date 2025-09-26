@@ -94,6 +94,7 @@ func InitRouter(params Params) (*gin.Engine, error) {
 		doc.GET("/list", params.DocumentHandler.List)
 		doc.DELETE("/delete/:id", params.DocumentHandler.Delete)
 		doc.GET("/download/:id", params.DocumentHandler.Download)
+		doc.POST("/parse/:id", params.DocumentHandler.Parse)
 	}
 	return r, nil
 }

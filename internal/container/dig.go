@@ -133,5 +133,9 @@ func InitVectorStore(config *config.Config) (interfaces.VectorStore, error) {
 }
 
 func InitAntsPool(config *config.Config) (*ants.Pool, error) {
-	return ants.NewPool(config.GoPool.Size, ants.WithPreAlloc(true))
+	pool, err := ants.NewPool(config.GoPool.Size, ants.WithPreAlloc(true))
+	if err != nil {
+		return nil, err
+	}
+	return pool, nil
 }

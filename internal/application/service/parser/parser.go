@@ -42,8 +42,12 @@ func (d *DocumentParser) Parse(_ context.Context, info types.ParseInfo) error {
 	}
 	_ = chain.Compile()
 	runner := dag.NewChainRun(chain)
+	variables := map[string]any{
+		parseInfoContextKey: &info,
+	}
 	// 异步执行任务链
 	if err := runner.Run(dag.WithWorkerPool(d.workerPool),
+		dag.WithVariables(variables),
 		dag.WithNonBlocking(),
 		dag.WithPanicHandler(d.panicHandler),
 		dag.WithCallback(d.nodeCallback),
@@ -74,7 +78,7 @@ func (d *DocumentParser) summarizing(ctx context.Context, _ dag.Node) (result da
 		},
 		{
 			Role:    schema.User,
-			Content: parseInfo.Content,
+			Content: string(parseInfo.Content),
 		},
 	})
 	if err != nil {

@@ -46,3 +46,12 @@ func workspaceScope(ctx context.Context) func(*gorm.DB) *gorm.DB {
 		return db
 	}
 }
+
+func workspaceScopeWithTable(ctx context.Context, table string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		if workspaceId, ok := ctx.Value(types.WorkspaceIdContextKey).(int64); ok {
+			db = db.Where(table+".workspace_id = ?", workspaceId)
+		}
+		return db
+	}
+}

@@ -76,9 +76,9 @@ func (m *ModelRepo) GetDetail(ctx context.Context, id int64) (*types.ModelDetail
 	if err := m.db.WithContext(ctx).
 		Model(&types.Model{}).
 		Joins("left join model_factories on model_factories.id = models.factory_id").
-		Select("models.*, model_factories.encrypt_config").
+		Select("models.*, api_key, base_url, model_factories.type as factory_type").
 		Where("models.id = ?", id).
-		Scopes(workspaceScope(ctx)).
+		Scopes(workspaceScopeWithTable(ctx, "models")).
 		First(&md).Error; err != nil {
 		return nil, err
 	}
