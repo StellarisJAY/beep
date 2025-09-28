@@ -97,3 +97,13 @@ type UpdateKnowledgeBaseReq struct {
 	Public       *bool        `json:"public"`
 	ChunkOptions ChunkOptions `json:"chunk_options"`
 }
+
+// RetrieverOption 知识库检索选项
+type RetrieverOption struct {
+	TopK       int        `json:"top_k"`       // TopK
+	Threshold  float64    `json:"threshold"`   // 相似度阈值
+	SearchType SearchType `json:"search_type"` // 搜索类型: fulltext, vector, hybrid
+	HybridType HybridType `json:"hybrid_type"` // 混合搜索类型: weight, rerank
+	Weight     float64    `json:"weight"`      // 混合搜索向量权重
+	Reranker   int64      `json:"reranker"`    // 重排模型ID
+}

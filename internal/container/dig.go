@@ -53,6 +53,8 @@ func NewContainer() *dig.Container {
 	must(container.Provide(repository.NewModelFactoryRepo))
 	must(container.Provide(repository.NewMCPServerRepo))
 	must(container.Provide(repository.NewDocumentRepo))
+	must(container.Provide(repository.NewConversationRepo))
+	must(container.Provide(repository.NewMessageRepo))
 
 	// 服务层
 	must(container.Provide(service.NewUserService))
@@ -61,6 +63,7 @@ func NewContainer() *dig.Container {
 	must(container.Provide(service.NewModelService))
 	must(container.Provide(service.NewMCPServerService))
 	must(container.Provide(service.NewDocumentService))
+	must(container.Provide(service.NewMemoryService))
 	// 文档解析器
 	must(container.Provide(parser.NewDocumentParser))
 
