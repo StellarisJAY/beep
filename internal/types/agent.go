@@ -48,6 +48,26 @@ func (a *Agent) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+type AgentQuery struct {
+	Name       string `form:"name"`
+	Type       string `form:"type"`
+	CreateByMe bool   `form:"create_by_me"`
+}
+
+type CreateAgentReq struct {
+	Name        string       `json:"name" binding:"required"`
+	Description string       `json:"description" binding:"required"`
+	Type        AgentType    `json:"type" binding:"required"`
+	Config      *AgentConfig `json:"config" binding:"required"`
+}
+
+type UpdateAgentReq struct {
+	Id          int64        `json:"id" binding:"required"`
+	Name        string       `json:"name" binding:"required"`
+	Description string       `json:"description" binding:"required"`
+	Config      *AgentConfig `json:"config" binding:"required"`
+}
+
 type AgentConfig struct {
 	ReAct    *ReActAgentConfig    `json:"re_act"`
 	Workflow *WorkflowAgentConfig `json:"workflow"`
