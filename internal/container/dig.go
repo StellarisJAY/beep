@@ -78,6 +78,8 @@ func NewContainer() *dig.Container {
 	must(container.Provide(handler.NewModelHandler))
 	must(container.Provide(handler.NewMCPServerHandler))
 	must(container.Provide(handler.NewDocumentHandler))
+	// 智能体
+	must(container.Provide(handler.NewAgentHandler))
 	// gin engine
 	must(container.Provide(router.InitRouter))
 	return container

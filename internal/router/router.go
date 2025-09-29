@@ -24,6 +24,7 @@ type Params struct {
 	ModelHandler         *handler.ModelHandler
 	MCPServerHandler     *handler.MCPServerHandler
 	DocumentHandler      *handler.DocumentHandler
+	AgentHandler         *handler.AgentHandler
 }
 
 func InitRouter(params Params) (*gin.Engine, error) {
@@ -95,6 +96,14 @@ func InitRouter(params Params) (*gin.Engine, error) {
 		doc.DELETE("/delete/:id", params.DocumentHandler.Delete)
 		doc.GET("/download/:id", params.DocumentHandler.Download)
 		doc.POST("/parse/:id", params.DocumentHandler.Parse)
+	}
+
+	// 智能体
+	agent := v1.Group("/agent")
+	{
+		agent.Use(middleware.Auth(params.Config, params.Redis))
+		agent.POST("/create", params.AgentHandler.Create)
+		agent.GET("/list", params.AgentHandler.List)
 	}
 	return r, nil
 }

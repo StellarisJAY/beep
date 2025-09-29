@@ -101,13 +101,13 @@ type MemoryOption struct {
 
 // ReActAgentConfig 是 ReAct 类型的智能体配置
 type ReActAgentConfig struct {
-	ChatModel       int64           `json:"chat_model"`       // 聊天模型ID
-	KnowledgeBases  []int64         `json:"knowledge_bases"`  // 关联的知识库ID列表
-	McpServers      []int64         `json:"mcp_servers"`      // 关联的MCP服务器ID列表
-	Prompt          string          `json:"prompt"`           // 智能体的提示词
-	MaxIterations   int             `json:"max_iterations"`   // 最大迭代次数
-	MemoryOption    MemoryOption    `json:"memory_option"`    // 记忆选项
-	RetrieverOption RetrieverOption `json:"retriever_option"` // 知识库检索选项
+	ChatModel       int64           `json:"chat_model,string"` // 聊天模型ID
+	KnowledgeBases  []int64         `json:"knowledge_bases"`   // 关联的知识库ID列表
+	McpServers      []int64         `json:"mcp_servers"`       // 关联的MCP服务器ID列表
+	Prompt          string          `json:"prompt"`            // 智能体的提示词
+	MaxIterations   int             `json:"max_iterations"`    // 最大迭代次数
+	MemoryOption    MemoryOption    `json:"memory_option"`     // 记忆选项
+	RetrieverOption RetrieverOption `json:"retriever_option"`  // 知识库检索选项
 }
 
 // WorkflowAgentConfig 是 Workflow 类型的智能体配置
