@@ -52,3 +52,8 @@ type UpdateMCPServerReq struct {
 	Url         string `json:"url" binding:"required"`
 	Description string `json:"description" binding:"required"`
 }
+
+type MCPToolSet struct {
+	Name  string      `json:"name"`
+	Tools []*mcp.Tool `json:"tools"`
+}
