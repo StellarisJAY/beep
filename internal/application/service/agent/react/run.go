@@ -4,8 +4,10 @@ import (
 	"beep/internal/models"
 	"beep/internal/types"
 	"beep/internal/types/interfaces"
+	"beep/internal/util"
 	"context"
-	"encoding/json"
+	"errors"
+	"io"
 	"log/slog"
 
 	"github.com/cloudwego/eino/components/model"
@@ -30,6 +32,8 @@ type AgentRun struct {
 	errChan     chan error         // 错误通道
 
 	chatModel model.BaseChatModel // 聊天模型接口
+
+	tools []*types.MCPToolSet // MCP服务器工具列表
 }
 
 type AgentRunParams struct {
@@ -87,7 +91,7 @@ func (a *AgentRun) Run(ctx context.Context, req types.AgentRunReq) (*types.Agent
 	}, nil
 }
 
-func (a *AgentRun) reAct(ctx context.Context, req types.AgentRunReq) {
+func (a *AgentRun) listMcpTools(ctx context.Context) error {
 	mcpServerIds := a.AgentConfig.ReAct.McpServers
 	mcpServers := make([]*types.MCPToolSet, 0, len(mcpServerIds))
 	for _, id := range mcpServerIds {
@@ -107,41 +111,68 @@ func (a *AgentRun) reAct(ctx context.Context, req types.AgentRunReq) {
 			Tools: mcpServer.Tools,
 		})
 	}
-	data, _ := json.Marshal(mcpServers)
+	a.tools = mcpServers
+	return nil
+}
+
+func (a *AgentRun) reAct(ctx context.Context, req types.AgentRunReq) {
+	defer func() {
+		if err := recover(); err != nil {
+			slog.Error("reAct panic", "err", err)
+			a.errChan <- err.(error)
+		}
+	}()
+	// 系统提示词
 	messages := []*schema.Message{
 		{
 			Role:    schema.System,
 			Content: a.AgentConfig.ReAct.Prompt,
 		},
-		{
-			Role:    schema.System,
-			Content: "you have access to the following tools:" + string(data),
-		},
-		{
-			Role:    schema.User,
-			Content: req.Query,
-		},
 	}
-	for {
-		response, err := a.chatModel.Generate(ctx, messages)
-		if err != nil {
-			slog.Error("模型生成失败", "err", err)
-			return
-		}
-		slog.Info("模型回复", "response", response)
-		// 没有工具调用，直接回复
-		if len(response.ToolCalls) == 0 {
-			messages = append(messages, &schema.Message{
-				Role:    schema.Assistant,
-				Content: response.Content,
-			})
-			continue
-		}
+	// 列出MCP服务器工具列表
+	if err := a.listMcpTools(ctx); err != nil {
+		slog.Error("获取MCP服务器工具列表失败", "err", err)
+	}
 
-		// TODO 调用工具，回复调用结果
+	// 添加用户查询
+	messages = append(messages, &schema.Message{
+		Role:    schema.User,
+		Content: req.Query,
+	})
+
+	for {
+		currentMessage := &types.Message{
+			BaseEntity:     types.BaseEntity{ID: util.SnowflakeId()},
+			Role:           string(schema.Assistant),
+			Content:        "",
+			ConversationId: req.ConversationId,
+		}
+		stream, err := a.chatModel.Stream(ctx, messages)
+		if err != nil {
+			panic(err)
+		}
+		for {
+			chunk, err := stream.Recv()
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			if err != nil {
+				panic(err)
+			}
+			if chunk.Content != "" {
+				currentMessage.Content += chunk.Content
+				a.messageChan <- types.Message{
+					BaseEntity:     types.BaseEntity{ID: currentMessage.ID},
+					Role:           string(schema.Assistant),
+					Content:        chunk.Content,
+					ToolCall:       chunk.ToolName,
+					ConversationId: req.ConversationId,
+				}
+			}
+		}
 		messages = append(messages, &schema.Message{
 			Role:    schema.Assistant,
-			Content: response.Content,
+			Content: currentMessage.Content,
 		})
 	}
 }

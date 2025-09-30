@@ -3,6 +3,7 @@ package container
 import (
 	"beep/internal/application/repository"
 	"beep/internal/application/service"
+	"beep/internal/application/service/agent"
 	"beep/internal/application/service/captcha"
 	"beep/internal/application/service/encrypt"
 	"beep/internal/application/service/file"
@@ -67,6 +68,10 @@ func NewContainer() *dig.Container {
 	must(container.Provide(service.NewMemoryService))
 	// 智能体
 	must(container.Provide(service.NewAgentService))
+	// 智能体运行工厂
+	must(container.Provide(agent.NewRunFactory))
+	// 智能体聊天服务
+	must(container.Provide(service.NewChatService))
 
 	// 文档解析器
 	must(container.Provide(parser.NewDocumentParser))
@@ -80,6 +85,7 @@ func NewContainer() *dig.Container {
 	must(container.Provide(handler.NewDocumentHandler))
 	// 智能体
 	must(container.Provide(handler.NewAgentHandler))
+	must(container.Provide(handler.NewChatHandler))
 	// gin engine
 	must(container.Provide(router.InitRouter))
 	return container

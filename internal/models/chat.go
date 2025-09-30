@@ -10,6 +10,7 @@ import (
 	"github.com/cloudwego/eino/components/model"
 )
 
+// NewChatModel 创建聊天模型
 func NewChatModel(modelDetail types.ModelDetail, option types.ChatModelOption) (model.BaseChatModel, error) {
 	switch modelDetail.FactoryType {
 	case types.FactoryOpenAI:
@@ -28,6 +29,7 @@ func NewChatModel(modelDetail types.ModelDetail, option types.ChatModelOption) (
 	case types.FactoryDashscope:
 		maxTokens := int(modelDetail.MaxTokens)
 		return qwen.NewChatModel(context.Background(), &qwen.ChatModelConfig{
+			BaseURL:          modelDetail.BaseUrl,
 			APIKey:           modelDetail.ApiKeyDecrypted,
 			Model:            modelDetail.Name,
 			MaxTokens:        &maxTokens,

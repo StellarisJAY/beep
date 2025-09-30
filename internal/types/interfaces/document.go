@@ -8,11 +8,17 @@ import (
 
 // DocumentRepo 文档数据库
 type DocumentRepo interface {
+	// Create 创建文档
 	Create(ctx context.Context, document *types.Document) error
+	// Update 更新文档
 	Update(ctx context.Context, document *types.Document) error
+	// Get 获取文档
 	Get(ctx context.Context, id int64) (*types.Document, error)
+	// Delete 删除文档
 	Delete(ctx context.Context, id int64) error
+	// List 文档列表
 	List(ctx context.Context, query types.DocumentQuery) ([]*types.Document, int, error)
+	// DeleteByKnowledgeBaseId 删除知识库下所有文档
 	DeleteByKnowledgeBaseId(ctx context.Context, knowledgeBaseId int64) error
 }
 

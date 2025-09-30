@@ -8,12 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Recovery panic错误处理中间件
 func Recovery() gin.RecoveryFunc {
 	return func(c *gin.Context, err any) {
 		if e, ok := err.(error); ok {
 			stack := debug.Stack()
 			serviceErr, ok := errors.AsServiceError(e)
 			if ok {
+				// 处理service error
 				slog.Error("service error", "error", serviceErr, "detail", serviceErr.Details, "stack", string(stack))
 				c.JSON(200, gin.H{
 					"code":    serviceErr.Code,

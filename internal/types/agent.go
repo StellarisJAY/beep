@@ -15,15 +15,16 @@ const (
 	AgentTypeWorkflow AgentType = "workflow"
 )
 
+// Agent 智能体
 type Agent struct {
 	BaseEntity
-	Name         string      `json:"name" gorm:"not null;type:varchar(64);"`
-	Description  string      `json:"description" gorm:"not null;type:varchar(255);"`
-	Type         AgentType   `json:"type" gorm:"not null;"`
-	Config       AgentConfig `json:"config" gorm:"not null;type:json;"`
-	WorkspaceId  int64       `json:"workspace_id" gorm:"not null;"`
-	CreateBy     int64       `json:"create_by"`
-	LastUpdateBy int64       `json:"last_update_by"`
+	Name         string      `json:"name" gorm:"not null;type:varchar(64);"`         // 智能体名称
+	Description  string      `json:"description" gorm:"not null;type:varchar(255);"` // 智能体描述
+	Type         AgentType   `json:"type" gorm:"not null;"`                          // 智能体类型
+	Config       AgentConfig `json:"config" gorm:"not null;type:json;"`              // 智能体配置
+	WorkspaceId  int64       `json:"workspace_id" gorm:"not null;"`                  // 工作空间ID
+	CreateBy     int64       `json:"create_by"`                                      // 创建人ID
+	LastUpdateBy int64       `json:"last_update_by"`                                 // 最后更新人ID
 }
 
 func (*Agent) TableName() string {
