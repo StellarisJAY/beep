@@ -13,6 +13,12 @@ type AgentRunReq struct {
 	Mode           string `json:"mode"`
 }
 
+type ToolSignal struct {
+	AgentId        int64 `json:"agent_id"`
+	ConversationId int64 `json:"conversation_id"`
+	Accept         bool  `json:"accept"`
+}
+
 type AgentRunResp struct {
 	MessageChan chan Message
 	ErrorChan   chan error

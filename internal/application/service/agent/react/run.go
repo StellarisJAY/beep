@@ -96,6 +96,10 @@ func (a *AgentRun) Run(ctx context.Context, req types.AgentRunReq) (*types.Agent
 	}, nil
 }
 
+func (a *AgentRun) SignalTool(ctx context.Context, signal types.ToolSignal) error {
+	panic("implement me")
+}
+
 func (a *AgentRun) listMcpTools(ctx context.Context) error {
 	mcpServerIds := a.AgentConfig.ReAct.McpServers
 	mcpServers := make([]*types.MCPToolSet, 0, len(mcpServerIds))
