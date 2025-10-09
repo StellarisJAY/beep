@@ -3,6 +3,8 @@ package interfaces
 import (
 	"beep/internal/types"
 	"context"
+
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 // MCPServerRepo MCP 服务器的数据库接口
@@ -32,4 +34,6 @@ type MCPServerService interface {
 	Get(ctx context.Context, id int64) (*types.MCPServer, error)
 	// ListTools 获取 MCP 服务器工具列表，结果组装到 MCPServer 结构体的 Tools 字段
 	ListTools(ctx context.Context, ms *types.MCPServer) error
+	// Call 调用 MCP 服务器工具
+	Call(ctx context.Context, id int64, request *mcp.CallToolParams) (*mcp.CallToolResult, error)
 }

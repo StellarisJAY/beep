@@ -92,3 +92,26 @@ func (m *MCPServerService) ListTools(ctx context.Context, ms *types.MCPServer) e
 	ms.Available = true
 	return nil
 }
+
+func (m *MCPServerService) Call(ctx context.Context, id int64, request *mcp.CallToolParams) (*mcp.CallToolResult, error) {
+	mcpServer, err := m.mcpServerRepo.Get(ctx, id)
+	if err != nil {
+		return nil, errors.NewInternalServerError("获取MCP服务失败", err)
+	}
+	if mcpServer.Url == "" || !strings.HasPrefix(mcpServer.Url, "http://") && !strings.HasPrefix(mcpServer.Url, "https://") {
+		return nil, errors.NewBadRequestError("MCP服务URL格式错误", nil)
+	}
+	client := mcp.NewClient(&mcp.Implementation{Name: "mcp-cli", Version: "v1.0.0"}, &mcp.ClientOptions{})
+	session, err := client.Connect(ctx, &mcp.StreamableClientTransport{Endpoint: mcpServer.Url}, nil)
+	if err != nil {
+		return nil, errors.NewInternalServerError("MCP服务连接失败", err)
+	}
+	defer func() {
+		_ = session.Close()
+	}()
+	res, err := session.CallTool(ctx, request)
+	if err != nil {
+		return nil, errors.NewInternalServerError("MCP服务调用工具失败", err)
+	}
+	return res, nil
+}

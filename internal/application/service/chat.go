@@ -5,6 +5,7 @@ import (
 	"beep/internal/types"
 	"beep/internal/types/interfaces"
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -44,8 +45,9 @@ func (c *ChatService) MessageLoop(ctx context.Context, messageChan chan types.Me
 func (c *ChatService) handleMessage(ctx context.Context, message types.Message) error {
 	// 获取SSE Writer
 	writer := ctx.Value(types.ContextKeySSEWriter).(gin.ResponseWriter)
+	data, _ := json.Marshal(message)
 	// 发送消息
-	if _, err := writer.Write([]byte(fmt.Sprintf("data: %s\n\n", message.Content))); err != nil {
+	if _, err := writer.Write([]byte(fmt.Sprintf("data: %s\n\n", string(data)))); err != nil {
 		return errors.NewInternalServerError("发送消息失败", err)
 	}
 	writer.Flush()

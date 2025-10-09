@@ -9,8 +9,8 @@ import (
 
 type BaseEntity struct {
 	ID        int64          `json:"id,string" gorm:"primary_key'"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	CreatedAt time.Time      `json:"created_at,omitempty"`
+	UpdatedAt time.Time      `json:"updated_at,omitempty"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 

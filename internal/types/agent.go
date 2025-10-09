@@ -109,6 +109,7 @@ type ReActAgentConfig struct {
 	MaxIterations   int             `json:"max_iterations"`    // 最大迭代次数
 	MemoryOption    MemoryOption    `json:"memory_option"`     // 记忆选项
 	RetrieverOption RetrieverOption `json:"retriever_option"`  // 知识库检索选项
+	UseSystemTools  bool            `json:"use_system_tools"`  // 是否使用系统工具集
 }
 
 // WorkflowAgentConfig 是 Workflow 类型的智能体配置

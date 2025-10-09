@@ -9,7 +9,7 @@ type Message struct {
 	Role           string `json:"role" gorm:"type:varchar(16);not null;"`        // 消息角色，user、system、assistant
 	Content        string `json:"content" gorm:"type: text; not null;"`          // 消息内容
 	ToolCall       string `json:"tool_call" gorm:"type: text;"`                  // 工具调用
-	ToolResponse   string `json:"tool_response" gorm:"type: text;"`              // 工具调用响应
+	ToolCallParams string `json:"tool_call_params" gorm:"type: text;"`           // 工具调用参数
 }
 
 func (*Message) TableName() string {
