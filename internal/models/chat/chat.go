@@ -10,15 +10,16 @@ import (
 
 // ToolCall 函数调用
 type ToolCall struct {
-	ToolName  string `json:"tool_name"` // 函数名称
-	Arguments string `json:"arguments"` // 函数参数，JSON字符串
+	Type      string `json:"type"`      // 工具类型，function,mcp
+	ToolName  string `json:"tool_name"` // 工具名称
+	Arguments string `json:"arguments"` // 工具参数，JSON字符串
 }
 
 // Message 聊天消息
 type Message struct {
-	Role          string      `json:"role"`           // 消息角色，user/assistant/system
-	Content       string      `json:"content"`        // 消息内容
-	FunctionCalls []*ToolCall `json:"function_calls"` // 函数调用列表
+	Role      string      `json:"role"`       // 消息角色，user/assistant/system
+	Content   string      `json:"content"`    // 消息内容
+	ToolCalls []*ToolCall `json:"tool_calls"` // 工具调用列表
 }
 
 // Options 模型调用参数
