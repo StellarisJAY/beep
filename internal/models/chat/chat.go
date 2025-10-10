@@ -3,29 +3,35 @@ package chat
 import (
 	"beep/internal/types"
 	"context"
+	"github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/option"
 	"io"
 )
 
-type FunctionCall struct {
-	FunctionName string `json:"function_name"`
-	Arguments    string `json:"arguments"`
+// ToolCall 函数调用
+type ToolCall struct {
+	ToolName  string `json:"tool_name"` // 函数名称
+	Arguments string `json:"arguments"` // 函数参数，JSON字符串
 }
 
+// Message 聊天消息
 type Message struct {
-	Role          string          `json:"role"`
-	Content       string          `json:"content"`
-	FunctionCalls []*FunctionCall `json:"function_calls"`
+	Role          string      `json:"role"`           // 消息角色，user/assistant/system
+	Content       string      `json:"content"`        // 消息内容
+	FunctionCalls []*ToolCall `json:"function_calls"` // 函数调用列表
 }
 
+// Options 模型调用参数
 type Options struct {
-	Thinking         bool    `json:"thinking"`
-	MaxTokens        int     `json:"max_tokens"`
-	Temperature      float64 `json:"temperature"`
-	TopP             float64 `json:"top_p"`
-	Stop             string  `json:"stop"`
-	FrequencyPenalty float64 `json:"frequency_penalty"`
+	Reasoning        bool    `json:"reasoning"`         // 是否开启推理模式
+	MaxTokens        int     `json:"max_tokens"`        // 最大输出token数
+	Temperature      float64 `json:"temperature"`       // 温度参数，控制输出的随机性
+	TopP             float64 `json:"top_p"`             // Top-p采样，控制输出的多样性
+	Stop             string  `json:"stop"`              // 停止生成的token
+	FrequencyPenalty float64 `json:"frequency_penalty"` // 频率惩罚参数，控制输出的重复度
 
-	McpServers []*types.MCPServer `json:"-"`
+	McpServers        []*types.MCPServer `json:"-"`                   // 模型可用的MCP服务器列表
+	ParallelToolCalls bool               `json:"parallel_tool_calls"` // 是否并行调用工具
 }
 
 type BaseModel interface {
@@ -33,8 +39,32 @@ type BaseModel interface {
 	Stream(ctx context.Context, messages []*Message, options *Options) (*Stream, error)
 }
 
+// NewChatModel 创建一个聊天模型
+func NewChatModel(modelDetail types.ModelDetail) BaseModel {
+	switch modelDetail.FactoryType {
+	case types.FactoryDashscope, types.FactoryOpenAI, types.FactoryOpenAICompatible:
+		chatModel := &remoteAPIModel{
+			client:    openai.NewClient(option.WithBaseURL(modelDetail.BaseUrl), option.WithAPIKey(modelDetail.ApiKeyDecrypted)),
+			modelName: modelDetail.Name,
+		}
+		return chatModel
+	case types.FactoryOllama:
+		panic("not implemented")
+	default:
+		panic("not implemented")
+	}
+}
+
 type Stream struct {
 	messageChan chan *Message
+	errChan     chan error
+}
+
+func newStream() *Stream {
+	return &Stream{
+		messageChan: make(chan *Message, 64),
+		errChan:     make(chan error, 1),
+	}
 }
 
 func (s *Stream) Next() (*Message, error) {
@@ -44,5 +74,15 @@ func (s *Stream) Next() (*Message, error) {
 			return nil, io.EOF
 		}
 		return message, nil
+	case err, ok := <-s.errChan:
+		if !ok {
+			return nil, io.EOF
+		}
+		return nil, err
 	}
+}
+
+func (s *Stream) Close() {
+	close(s.messageChan)
+	close(s.errChan)
 }

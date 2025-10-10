@@ -34,11 +34,19 @@ func (r *remoteAPIModel) Generate(ctx context.Context, messages []*Message, opti
 func (r *remoteAPIModel) Stream(ctx context.Context, messages []*Message, options *Options) (*Stream, error) {
 	params := r.makeCompletionParams(messages, options)
 	stream := r.client.Chat.Completions.NewStreaming(ctx, params)
-	messageChan := make(chan *Message, 64)
+	outputStream := newStream()
+	// 启动一个goroutine处理流式输出
 	go func() {
-		defer close(messageChan)
+		defer outputStream.Close()
+		defer stream.Close()
+
 		for stream.Next() {
 			chunk := stream.Current()
+			// 错误输出到errChan
+			if err := stream.Err(); err != nil {
+				outputStream.errChan <- err
+				return
+			}
 			if len(chunk.Choices) == 0 {
 				continue
 			}
@@ -48,12 +56,13 @@ func (r *remoteAPIModel) Stream(ctx context.Context, messages []*Message, option
 				Content:       delta.Content,
 				FunctionCalls: convertOpenaiToolCallsStream(delta.ToolCalls),
 			}
-			messageChan <- message
+			outputStream.messageChan <- message
 		}
 	}()
-	return &Stream{messageChan: messageChan}, nil
+	return outputStream, nil
 }
 
+// getChatTools 将MCP服务和内部工具转换成OpenAI的Tool定义
 func getChatTools(options *Options) []openai.ChatCompletionToolUnionParam {
 	tools := make([]openai.ChatCompletionToolUnionParam, 0, len(options.McpServers))
 	for _, mcpServer := range options.McpServers {
@@ -61,6 +70,7 @@ func getChatTools(options *Options) []openai.ChatCompletionToolUnionParam {
 			tool := &openai.ChatCompletionFunctionToolParam{
 				Type: "function",
 				Function: shared.FunctionDefinitionParam{
+					// 每个工具的名字为 mcp:mcp服务名:工具名
 					Name:        fmt.Sprintf("mcp:%s:%s", mcpServer.Name, mcpTool.Name),
 					Strict:      param.NewOpt(true),
 					Description: param.NewOpt(mcpTool.Description),
@@ -73,6 +83,7 @@ func getChatTools(options *Options) []openai.ChatCompletionToolUnionParam {
 	return tools
 }
 
+// convertMessages 将Message转换为OpenAI的ChatCompletionMessage
 func convertMessages(messages []*Message) []openai.ChatCompletionMessageParamUnion {
 	convertedMessages := make([]openai.ChatCompletionMessageParamUnion, 0, len(messages))
 	for _, message := range messages {
@@ -96,15 +107,20 @@ func convertMessages(messages []*Message) []openai.ChatCompletionMessageParamUni
 	return convertedMessages
 }
 
+// makeCompletionParams 构建OpenAI的ChatCompletionNewParams
 func (r *remoteAPIModel) makeCompletionParams(messages []*Message, options *Options) openai.ChatCompletionNewParams {
+	// 转换输入消息转换成OpenAI格式
 	inputMessages := convertMessages(messages)
 	params := openai.ChatCompletionNewParams{
-		Model:           r.modelName,
+		Model: r.modelName, // 模型名称
+		// 模型调用参数
 		Temperature:     param.NewOpt(options.Temperature),
 		TopP:            param.NewOpt(options.TopP),
 		PresencePenalty: param.NewOpt(options.FrequencyPenalty),
-		Messages:        inputMessages,
+		// 输入消息
+		Messages: inputMessages,
 	}
+	// 获取工具定义
 	tools := getChatTools(options)
 	if len(tools) > 0 {
 		params.Tools = tools
@@ -112,23 +128,25 @@ func (r *remoteAPIModel) makeCompletionParams(messages []*Message, options *Opti
 	return params
 }
 
-func convertOpenaiToolCallsStream(toolCalls []openai.ChatCompletionChunkChoiceDeltaToolCall) []*FunctionCall {
-	convertedToolCalls := make([]*FunctionCall, 0, len(toolCalls))
+// convertOpenaiToolCallsStream 将OpenAI的流式工具调用转换为ToolCall
+func convertOpenaiToolCallsStream(toolCalls []openai.ChatCompletionChunkChoiceDeltaToolCall) []*ToolCall {
+	convertedToolCalls := make([]*ToolCall, 0, len(toolCalls))
 	for _, toolCall := range toolCalls {
-		convertedToolCalls = append(convertedToolCalls, &FunctionCall{
-			FunctionName: toolCall.Function.Name,
-			Arguments:    toolCall.Function.Arguments,
+		convertedToolCalls = append(convertedToolCalls, &ToolCall{
+			ToolName:  toolCall.Function.Name,
+			Arguments: toolCall.Function.Arguments,
 		})
 	}
 	return convertedToolCalls
 }
 
-func convertOpenaiToolCalls(toolCalls []openai.ChatCompletionMessageToolCallUnion) []*FunctionCall {
-	convertedToolCalls := make([]*FunctionCall, 0, len(toolCalls))
+// convertOpenaiToolCalls 将OpenAI的工具调用转换为ToolCall
+func convertOpenaiToolCalls(toolCalls []openai.ChatCompletionMessageToolCallUnion) []*ToolCall {
+	convertedToolCalls := make([]*ToolCall, 0, len(toolCalls))
 	for _, toolCall := range toolCalls {
-		convertedToolCalls = append(convertedToolCalls, &FunctionCall{
-			FunctionName: toolCall.Function.Name,
-			Arguments:    toolCall.Function.Arguments,
+		convertedToolCalls = append(convertedToolCalls, &ToolCall{
+			ToolName:  toolCall.Function.Name,
+			Arguments: toolCall.Function.Arguments,
 		})
 	}
 	return convertedToolCalls
