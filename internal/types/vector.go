@@ -1,7 +1,6 @@
 package types
 
 import (
-	"github.com/cloudwego/eino/components/embedding"
 	"github.com/cloudwego/eino/components/model"
 )
 
@@ -63,7 +62,6 @@ type ParseInfo struct {
 	DocId                int64               // 文档ID
 	KbId                 int64               // 知识库ID
 	ChunkOptions         ChunkOptions        // 切片选项
-	Embedder             embedding.Embedder  // 嵌入模型
 	ChatModel            model.BaseChatModel // 聊天模型
 	EnableKnowledgeGraph bool                // 是否开启知识图谱
 	OriginalFileName     string              // 原始文件名

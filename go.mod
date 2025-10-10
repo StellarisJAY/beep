@@ -16,6 +16,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.95
 	github.com/modelcontextprotocol/go-sdk v0.7.0
 	github.com/mojocn/base64Captcha v1.3.8
+	github.com/openai/openai-go/v3 v3.3.0
 	github.com/panjf2000/ants/v2 v2.11.3
 	github.com/redis/go-redis/v9 v9.14.0
 	go.uber.org/dig v1.19.0
@@ -135,7 +136,8 @@ require (
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/tidwall/gjson v1.17.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
-	github.com/tidwall/pretty v1.2.0 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/tinylib/msgp v1.3.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect

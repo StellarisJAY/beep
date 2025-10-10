@@ -137,14 +137,11 @@ func (d *DocumentService) Parse(ctx context.Context, id int64) error {
 		return errors.NewInternalServerError("解析文档失败，知识库不存在", nil)
 	}
 	// 获取嵌入模型
-	embeddingModel, err := d.modelService.GetModelDetail(ctx, kb.EmbeddingModel)
-	if err != nil {
-		return errors.NewInternalServerError("解析文档失败，获取嵌入模型失败", err)
-	}
-	embedder, err := models.CreateEmbedder(*embeddingModel)
-	if err != nil {
-		return errors.NewInternalServerError("解析文档失败，创建嵌入模型失败", err)
-	}
+	//embeddingModel, err := d.modelService.GetModelDetail(ctx, kb.EmbeddingModel)
+	//if err != nil {
+	//	return errors.NewInternalServerError("解析文档失败，获取嵌入模型失败", err)
+	//}
+
 	// 获取聊天模型
 	chatModelDetail, err := d.modelService.GetModelDetail(ctx, kb.ChatModel)
 	if err != nil {
@@ -171,7 +168,6 @@ func (d *DocumentService) Parse(ctx context.Context, id int64) error {
 		DocId:                document.ID,
 		KbId:                 kb.ID,
 		ChunkOptions:         kb.ChunkOptions,
-		Embedder:             embedder,
 		ChatModel:            chatModel,
 		EnableKnowledgeGraph: false,
 		OriginalFileName:     document.OriginalFileName,
