@@ -23,9 +23,9 @@ func (r *remoteAPIModel) Generate(ctx context.Context, messages []*Message, opti
 	}
 	choice := response.Choices[0]
 	assistantMessage := &Message{
-		Role:          string(choice.Message.Role),
-		Content:       choice.Message.Content,
-		FunctionCalls: convertOpenaiToolCalls(choice.Message.ToolCalls),
+		Role:      string(choice.Message.Role),
+		Content:   choice.Message.Content,
+		ToolCalls: convertOpenaiToolCalls(choice.Message.ToolCalls),
 	}
 	return assistantMessage, nil
 }
@@ -52,9 +52,9 @@ func (r *remoteAPIModel) Stream(ctx context.Context, messages []*Message, option
 			}
 			delta := chunk.Choices[0].Delta
 			message := &Message{
-				Role:          delta.Role,
-				Content:       delta.Content,
-				FunctionCalls: convertOpenaiToolCallsStream(delta.ToolCalls),
+				Role:      delta.Role,
+				Content:   delta.Content,
+				ToolCalls: convertOpenaiToolCallsStream(delta.ToolCalls),
 			}
 			outputStream.messageChan <- message
 		}

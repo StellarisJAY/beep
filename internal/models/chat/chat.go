@@ -35,8 +35,11 @@ type Options struct {
 	ParallelToolCalls bool               `json:"parallel_tool_calls"` // 是否并行调用工具
 }
 
+// BaseModel 聊天模型基础接口，适配不同的模型API，如OpenAI、Ollama等
 type BaseModel interface {
+	// Generate 生成回复
 	Generate(ctx context.Context, messages []*Message, options *Options) (*Message, error)
+	// Stream 流式生成回复
 	Stream(ctx context.Context, messages []*Message, options *Options) (*Stream, error)
 }
 
