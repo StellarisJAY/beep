@@ -75,6 +75,13 @@ func (m *MessageRepo) Search(ctx context.Context, query types.MessageQuery) ([]*
 	if query.Keyword != "" {
 		d = d.Where("content LIKE ?", "%"+query.Keyword+"%")
 	}
+	if query.Role != "" {
+		d = d.Where("role = ?", query.Role)
+	}
+	if query.ToolCall != nil && *query.ToolCall {
+		d = d.Where("tool_call IS NOT NULL").
+			Where("tool_call != ''")
+	}
 	if err := d.Find(&messages).Error; err != nil {
 		return nil, err
 	}

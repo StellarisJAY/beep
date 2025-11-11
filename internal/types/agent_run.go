@@ -14,8 +14,8 @@ type AgentRunReq struct {
 }
 
 type ToolSignal struct {
-	AgentId        int64 `json:"agent_id"`
-	ConversationId int64 `json:"conversation_id"`
+	AgentId        int64 `json:"agent_id,string"`
+	ConversationId int64 `json:"conversation_id,string"`
 	Accept         bool  `json:"accept"`
 }
 

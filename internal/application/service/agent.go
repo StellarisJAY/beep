@@ -116,6 +116,36 @@ func (a *AgentService) Run(ctx context.Context, req types.AgentRunReq) error {
 	return a.chatService.MessageLoop(ctx, resp.MessageChan, resp.ErrorChan)
 }
 
+func (a *AgentService) SignalTool(ctx context.Context, req types.ToolSignal) error {
+	// 没有指定会话ID，创建一个新会话
+	if req.ConversationId == 0 {
+		return errors.NewBadRequestError("会话ID不能为空", nil)
+	}
+
+	var agentRunReq types.AgentRunReq
+
+	if req.AgentId != 0 {
+		agent, err := a.repo.FindById(ctx, req.AgentId)
+		if err != nil {
+			return errors.NewInternalServerError("查询智能体失败", err)
+		}
+		agentRunReq.AgentId = req.AgentId
+		agentRunReq.Agent = agent
+		agentRunReq.ConversationId = req.ConversationId
+	}
+
+	run, err := a.agentRunFactory.CreateAgentRun(agentRunReq)
+	if err != nil {
+		return errors.NewInternalServerError("创建智能体运行失败", err)
+	}
+
+	resp, err := run.SignalTool(ctx, req)
+	if err != nil {
+		return errors.NewInternalServerError("调用工具失败", err)
+	}
+	return a.chatService.MessageLoop(ctx, resp.MessageChan, resp.ErrorChan)
+}
+
 func NewAgentService(repo interfaces.AgentRepo,
 	conversationRepo interfaces.ConversationRepo,
 	agentRunFactory interfaces.AgentRunFactory,

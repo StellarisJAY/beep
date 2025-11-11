@@ -67,6 +67,10 @@ func getChatTools(options *Options) []openai.ChatCompletionToolUnionParam {
 	tools := make([]openai.ChatCompletionToolUnionParam, 0, len(options.McpServers))
 	for _, mcpServer := range options.McpServers {
 		for _, mcpTool := range mcpServer.Tools {
+			params := map[string]any{}
+			for k, v := range mcpTool.InputSchema.Properties {
+				params[k] = v
+			}
 			tool := &openai.ChatCompletionFunctionToolParam{
 				Type: "function",
 				Function: shared.FunctionDefinitionParam{
@@ -74,7 +78,7 @@ func getChatTools(options *Options) []openai.ChatCompletionToolUnionParam {
 					Name:        fmt.Sprintf("mcp:%s:%s", mcpServer.Name, mcpTool.Name),
 					Strict:      param.NewOpt(true),
 					Description: param.NewOpt(mcpTool.Description),
-					Parameters:  nil, // TODO 处理参数
+					Parameters:  shared.FunctionParameters(params),
 				},
 			}
 			tools = append(tools, openai.ChatCompletionToolUnionParam{OfFunction: tool})
@@ -97,9 +101,27 @@ func convertMessages(messages []*Message) []openai.ChatCompletionMessageParamUni
 			convertedMessage.OfAssistant = &openai.ChatCompletionAssistantMessageParam{
 				Content: openai.ChatCompletionAssistantMessageParamContentUnion{OfString: param.NewOpt(message.Content)},
 			}
+			if message.ToolCallId != "" && len(message.ToolCalls) > 0 {
+				convertedMessage.OfAssistant.ToolCalls = []openai.ChatCompletionMessageToolCallUnionParam{
+					{
+						OfFunction: &openai.ChatCompletionMessageFunctionToolCallParam{
+							Type: "function",
+							Function: openai.ChatCompletionMessageFunctionToolCallFunctionParam{
+								Name:      message.ToolCalls[0].ToolName,
+								Arguments: message.ToolCalls[0].Arguments,
+							},
+						},
+					},
+				}
+			}
 		case "system":
 			convertedMessage.OfSystem = &openai.ChatCompletionSystemMessageParam{
 				Content: openai.ChatCompletionSystemMessageParamContentUnion{OfString: param.NewOpt(message.Content)},
+			}
+		case "tool":
+			convertedMessage.OfTool = &openai.ChatCompletionToolMessageParam{
+				Content:    openai.ChatCompletionToolMessageParamContentUnion{OfString: param.NewOpt(message.Content)},
+				ToolCallID: message.ToolCallId,
 			}
 		}
 		convertedMessages = append(convertedMessages, convertedMessage)
@@ -133,8 +155,9 @@ func convertOpenaiToolCallsStream(toolCalls []openai.ChatCompletionChunkChoiceDe
 	convertedToolCalls := make([]*ToolCall, 0, len(toolCalls))
 	for _, toolCall := range toolCalls {
 		convertedToolCalls = append(convertedToolCalls, &ToolCall{
-			ToolName:  toolCall.Function.Name,
-			Arguments: toolCall.Function.Arguments,
+			ToolName:   toolCall.Function.Name,
+			Arguments:  toolCall.Function.Arguments,
+			ToolCallId: toolCall.ID,
 		})
 	}
 	return convertedToolCalls

@@ -3,24 +3,35 @@ package chat
 import (
 	"beep/internal/types"
 	"context"
+	"io"
+
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
-	"io"
 )
 
 // ToolCall 函数调用
 type ToolCall struct {
-	Type      string `json:"type"`      // 工具类型，function,mcp
-	ToolName  string `json:"tool_name"` // 工具名称
-	Arguments string `json:"arguments"` // 工具参数，JSON字符串
+	Type       string `json:"type"`         // 工具类型，function,mcp
+	ToolName   string `json:"tool_name"`    // 工具名称
+	Arguments  string `json:"arguments"`    // 工具参数，JSON字符串
+	ToolCallId string `json:"tool_call_id"` // 工具调用ID
 }
 
 // Message 聊天消息
 type Message struct {
-	Role      string      `json:"role"`       // 消息角色，user/assistant/system
-	Content   string      `json:"content"`    // 消息内容
-	ToolCalls []*ToolCall `json:"tool_calls"` // 工具调用列表
+	Role         string      `json:"role"`          // 消息角色，user/assistant/system
+	Content      string      `json:"content"`       // 消息内容
+	ToolCalls    []*ToolCall `json:"tool_calls"`    // 工具调用列表
+	ToolResponse string      `json:"tool_response"` // 工具调用结果
+	ToolCallId   string      `json:"tool_call_id"`  // 工具调用ID
 }
+
+const (
+	RoleUser      = "user"
+	RoleAssistant = "assistant"
+	RoleSystem    = "system"
+	RoleTool      = "tool"
+)
 
 // Options 模型调用参数
 type Options struct {

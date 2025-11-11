@@ -33,4 +33,6 @@ type AgentService interface {
 	List(ctx context.Context, query types.AgentQuery) ([]*types.Agent, error)
 	// Run 运行智能体
 	Run(ctx context.Context, req types.AgentRunReq) error
+	// SignalTool 调用智能体工具
+	SignalTool(ctx context.Context, req types.ToolSignal) error
 }

@@ -47,7 +47,7 @@ func (f *RunFactory) CreateAgentRun(req types.AgentRunReq) (interfaces.AgentRun,
 			Worker:               f.worker,
 			ConversationRepo:     f.conversationRepo,
 			MessageRepo:          f.messageRepo,
-		}), nil
+		}, req)
 	}
 	return nil, errors.NewInternalServerError("不支持的智能体类型", nil)
 }

@@ -136,5 +136,6 @@ func initAgentRouter(r *gin.RouterGroup, params Params) {
 	{
 		chat.Use(middleware.Auth(params.Config, params.Redis))
 		chat.POST("/send", params.ChatHandler.SendMessage)
+		chat.POST("/signal", params.ChatHandler.SignalTool)
 	}
 }

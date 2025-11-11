@@ -18,11 +18,7 @@ func NewChatHandler(agentService interfaces.AgentService) *ChatHandler {
 	return &ChatHandler{agentService: agentService}
 }
 
-func (h *ChatHandler) SendMessage(c *gin.Context) {
-	var req types.SendMessageReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		panic(errors.NewBadRequestError("请求参数错误", err))
-	}
+func initSSEWriter(c *gin.Context) {
 	writer := c.Writer
 	writer.Header().Set("Content-Type", "text/event-stream; charset=utf-8")
 	writer.Header().Set("Cache-Control", "no-cache")
@@ -32,7 +28,14 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		panic(errors.NewBadRequestError("浏览器不支持SSE", nil))
 	}
 	c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), types.ContextKeySSEWriter, writer))
+}
 
+func (h *ChatHandler) SendMessage(c *gin.Context) {
+	var req types.SendMessageReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		panic(errors.NewBadRequestError("请求参数错误", err))
+	}
+	initSSEWriter(c)
 	if req.AgentID != 0 || req.Agent != nil {
 		if err := h.agentService.Run(c.Request.Context(), types.AgentRunReq{
 			AgentId:        req.AgentID,
@@ -43,4 +46,16 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 			panic(err)
 		}
 	}
+}
+
+func (h *ChatHandler) SignalTool(c *gin.Context) {
+	var req types.ToolSignal
+	if err := c.ShouldBindJSON(&req); err != nil {
+		panic(errors.NewBadRequestError("请求参数错误", err))
+	}
+	initSSEWriter(c)
+	if err := h.agentService.SignalTool(c.Request.Context(), req); err != nil {
+		panic(err)
+	}
+	c.JSON(http.StatusOK, ok())
 }

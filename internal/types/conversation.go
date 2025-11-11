@@ -10,6 +10,7 @@ type Message struct {
 	Content        string `json:"content" gorm:"type: text; not null;"`          // 消息内容
 	ToolCall       string `json:"tool_call" gorm:"type: text;"`                  // 工具调用
 	ToolCallParams string `json:"tool_call_params" gorm:"type: text;"`           // 工具调用参数
+	ToolCallId     string `json:"tool_call_id" gorm:"type: varchar(255);"`       // 工具调用ID
 }
 
 func (*Message) TableName() string {
@@ -54,4 +55,6 @@ type MessageQuery struct {
 	ConversationId int64  `json:"conversation_id" form:"conversation_id"` // 对话ID
 	Keyword        string `json:"keyword" form:"keyword"`                 // 搜索关键词
 	LastN          int    `json:"last_n" form:"last_n"`
+	Role           string `json:"role" form:"role"`           // 消息角色，user、system、assistant
+	ToolCall       *bool  `json:"tool_call" form:"tool_call"` // 是否查询工具调用消息
 }
