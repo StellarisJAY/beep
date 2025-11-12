@@ -1,16 +1,26 @@
 import {createRouter, createWebHistory  } from 'vue-router';
+import { useUserStore } from '@/stores/UserStore.js';
+import { h } from 'vue';
+import {
+  BookOutlined,
+  MessageOutlined,
+  RobotOutlined,
+  SettingOutlined,
+} from '@ant-design/icons-vue';
+
 
 const routes = [
   {
     path: '',
     component: () => import('@/layouts/default/index.vue'),
+    redirect: '/chat',
     children: [
       {
         name: '聊天',
         path: '/chat',
         component: () => import('@/views/chat/index.vue'),
         meta: {
-          icon: 'assets/svg/icon_chat.svg',
+          icon: h(MessageOutlined),
           showInMenu: true,
         }
       },
@@ -19,7 +29,7 @@ const routes = [
         path: '/agent',
         component: () => import('@/views/agent/index.vue'),
         meta: {
-          icon: 'assets/svg/icon_agent.svg',
+          icon: h(RobotOutlined),
           showInMenu: true,
         }
       },
@@ -28,21 +38,61 @@ const routes = [
         path: '/knowledge',
         component: () => import('@/views/knowledge/index.vue'),
         meta: {
-          icon: 'assets/svg/icon_knowledge.svg',
+          icon: h(BookOutlined),
           showInMenu: true,
-        }
+        },
+      },
+      {
+        name: '设置',
+        path: '/setting',
+        component: () => import('@/views/setting/index.vue'),
+        meta: {
+          icon: h(SettingOutlined),
+          showInMenu: true,
+        },
+        children: [
+          {
+            name: '用户设置',
+            path: '/setting/user',
+          },
+          {
+            name: '模型提供商',
+            path: '/setting/model',
+          },
+          {
+            name: 'MCP',
+            path: '/setting/mcp',
+          }
+        ]
       },
     ],
   },
   {
+    name: '登录',
     path: '/login',
     component: () => import('@/views/login/index.vue'),
   }
 ];
 
-export const initRouter = () => {
-  return createRouter({
-    history: createWebHistory(),
-    routes: routes,
-  });
+const beforeEach = (to, from, next) => {
+  if (to.name === '登录') {
+    next();
+    return;
+  }
+  if (!localStorage.getItem('beep_token')) {
+    next({ name: '登录', query: { back: to.fullPath } });
+  } else {
+    const userStore = useUserStore();
+    userStore.queryLoginInfo().then(isLogin => {
+      if (isLogin) next();
+      else next({ name: '登录', query: { back: to.fullPath } });
+    })
+  }
 };
+
+export const router = createRouter({
+  history: createWebHistory(),
+  routes: routes,
+});
+
+router.beforeEach(beforeEach);
