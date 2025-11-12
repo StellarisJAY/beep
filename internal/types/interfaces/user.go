@@ -27,4 +27,6 @@ type UserService interface {
 	Register(ctx context.Context, req types.RegisterReq) error
 	// Login 用户登录
 	Login(ctx context.Context, req types.LoginReq) (*types.LoginResp, error)
+	// GetLoginInfo 获取用户登录信息
+	GetLoginInfo(ctx context.Context) (*types.LoginResp, error)
 }

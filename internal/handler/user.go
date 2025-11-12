@@ -39,5 +39,15 @@ func (u *UserHandler) Login(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+	c.Header("Access-Token", resp.Token)
+	c.Header("Refresh-Token", resp.RefreshToken)
 	c.JSON(http.StatusOK, okWithData(resp))
+}
+
+func (u *UserHandler) GetLoginInfo(c *gin.Context) {
+	loginInfo, err := u.userService.GetLoginInfo(c.Request.Context())
+	if err != nil {
+		panic(err)
+	}
+	c.JSON(http.StatusOK, okWithData(loginInfo))
 }

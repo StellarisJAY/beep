@@ -36,4 +36,5 @@ type MCPServerService interface {
 	ListTools(ctx context.Context, ms *types.MCPServer) error
 	// Call 调用 MCP 服务器工具
 	Call(ctx context.Context, id int64, request *mcp.CallToolParams) (*mcp.CallToolResult, error)
+	CallWithElicitation(ctx context.Context, id int64, request *mcp.CallToolParams) (*mcp.CallToolResult, error)
 }

@@ -73,6 +73,12 @@ func initBasicRouter(r *gin.RouterGroup, params Params) {
 		w.POST("/switch/:id", params.WorkspaceHandler.SwitchWorkspace)
 		w.POST("/role", params.WorkspaceHandler.SetRole)
 	}
+
+	u := r.Group("/user")
+	{
+		u.Use(middleware.Auth(params.Config, params.Redis))
+		u.GET("/loginInfo", params.UserHandler.GetLoginInfo)
+	}
 }
 
 // initKnowledgeRouter 初始化知识库路由

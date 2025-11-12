@@ -16,7 +16,7 @@ type User struct {
 	Password      string     `json:"-" gorm:"not null;type:varchar(255)"`             // 密码
 	PasswordSalt  string     `json:"-" gorm:"not null;type:varchar(255)"`             // 密码盐
 	LastLoginTime *time.Time `json:"last_login_time"`                                 // 最后登录时间
-	LastLoginIp   string     `json:"last_login_ip;type:varchar(16)"`                  // 最后登录IP
+	LastLoginIp   string     `json:"last_login_ip;"`                                  // 最后登录IP
 }
 
 func (User) TableName() string {

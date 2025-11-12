@@ -12,6 +12,7 @@ import (
 	"log/slog"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/panjf2000/ants/v2"
@@ -165,12 +166,15 @@ func (a *AgentRun) toolReply(ctx context.Context, toolResult string, toolCallId 
 		ToolCallId: toolCallId,
 	}
 	messages = append(messages, toolMessage)
-	_ = a.messageRepo.Create(ctx, &types.Message{
+	toolMessageEnt := &types.Message{
 		Role:           chat.RoleTool,
 		Content:        toolResult,
 		ConversationId: a.ConversationId,
 		ToolCallId:     toolCallId,
-	})
+	}
+	toolMessageEnt.CreatedAt = time.Now()
+	a.messageChan <- *toolMessageEnt
+	_ = a.messageRepo.Create(ctx, toolMessageEnt)
 
 	a.sendAndReceive(ctx, messages)
 }
@@ -208,7 +212,7 @@ func (a *AgentRun) callTool(ctx context.Context, cmd, toolSet, toolName string, 
 		tool := a.tools[idx]
 		params := make(map[string]string)
 		_ = json.Unmarshal([]byte(paramsJson), &params)
-		result, err := a.mcpServerService.Call(ctx, tool.ID, &mcp.CallToolParams{
+		result, err := a.mcpServerService.CallWithElicitation(ctx, tool.ID, &mcp.CallToolParams{
 			Name:      toolName,
 			Arguments: params,
 		})
@@ -289,6 +293,7 @@ func (a *AgentRun) sendAndReceive(ctx context.Context, messages []*chat.Message)
 	if err != nil {
 		panic(err)
 	}
+	finalMessage.CreatedAt = time.Now()
 	// 保存消息记录
 	if err := a.messageRepo.Create(ctx, finalMessage); err != nil {
 		panic(err)

@@ -112,3 +112,20 @@ func (u *UserServiceImpl) Login(ctx context.Context, req types.LoginReq) (*types
 	}
 	return resp, nil
 }
+
+func (u *UserServiceImpl) GetLoginInfo(ctx context.Context) (*types.LoginResp, error) {
+	workspaceId := ctx.Value(types.WorkspaceIdContextKey).(int64)
+	userId := ctx.Value(types.UserIdContextKey).(int64)
+	workspace, err := u.workspaceRepo.FindById(ctx, workspaceId)
+	if err != nil {
+		return nil, errors.NewInternalServerError("查询登录信息失败", err)
+	}
+	user, err := u.userRepo.FindById(ctx, userId)
+	if err != nil {
+		return nil, errors.NewInternalServerError("查询登录信息失败", err)
+	}
+	return &types.LoginResp{
+		UserInfo:      user,
+		WorkspaceInfo: workspace,
+	}, nil
+}

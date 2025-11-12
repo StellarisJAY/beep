@@ -7,6 +7,7 @@ import (
 	"beep/internal/types/interfaces"
 	"context"
 	errors2 "errors"
+	"log/slog"
 	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -93,7 +94,7 @@ func (m *MCPServerService) ListTools(ctx context.Context, ms *types.MCPServer) e
 	return nil
 }
 
-func (m *MCPServerService) Call(ctx context.Context, id int64, request *mcp.CallToolParams) (*mcp.CallToolResult, error) {
+func (m *MCPServerService) getMCPServer(ctx context.Context, id int64) (*types.MCPServer, error) {
 	mcpServer, err := m.mcpServerRepo.Get(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("获取MCP服务失败", err)
@@ -101,7 +102,42 @@ func (m *MCPServerService) Call(ctx context.Context, id int64, request *mcp.Call
 	if mcpServer.Url == "" || !strings.HasPrefix(mcpServer.Url, "http://") && !strings.HasPrefix(mcpServer.Url, "https://") {
 		return nil, errors.NewBadRequestError("MCP服务URL格式错误", nil)
 	}
+	return mcpServer, nil
+}
+
+func (m *MCPServerService) Call(ctx context.Context, id int64, request *mcp.CallToolParams) (*mcp.CallToolResult, error) {
+	mcpServer, err := m.getMCPServer(ctx, id)
+	if err != nil {
+		return nil, err
+	}
 	client := mcp.NewClient(&mcp.Implementation{Name: "mcp-cli", Version: "v1.0.0"}, &mcp.ClientOptions{})
+	session, err := client.Connect(ctx, &mcp.StreamableClientTransport{Endpoint: mcpServer.Url}, nil)
+	if err != nil {
+		return nil, errors.NewInternalServerError("MCP服务连接失败", err)
+	}
+	defer func() {
+		_ = session.Close()
+	}()
+	res, err := session.CallTool(ctx, request)
+	if err != nil {
+		return nil, errors.NewInternalServerError("MCP服务调用工具失败", err)
+	}
+	return res, nil
+}
+
+// CallWithElicitation 带有MCP征询机制的调用工具
+func (m *MCPServerService) CallWithElicitation(ctx context.Context, id int64, request *mcp.CallToolParams) (*mcp.CallToolResult, error) {
+	mcpServer, err := m.getMCPServer(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	client := mcp.NewClient(&mcp.Implementation{Name: "mcp-cli", Version: "v1.0.0"}, &mcp.ClientOptions{
+		ElicitationHandler: func(c context.Context, req *mcp.ElicitRequest) (*mcp.ElicitResult, error) {
+			slog.Info("wait permission for", "tool", request.Name, "param", request.Arguments)
+			// TODO 等待用户批准请求
+			return &mcp.ElicitResult{Action: "accept"}, nil
+		},
+	})
 	session, err := client.Connect(ctx, &mcp.StreamableClientTransport{Endpoint: mcpServer.Url}, nil)
 	if err != nil {
 		return nil, errors.NewInternalServerError("MCP服务连接失败", err)

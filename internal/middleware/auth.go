@@ -14,7 +14,7 @@ import (
 // Auth 认证中间件
 func Auth(_ *config.Config, redis *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		accessToken := c.GetHeader("access_token")
+		accessToken := c.GetHeader("Access-Token")
 		if accessToken == "" {
 			panic(errors.NewUnauthorizedError("未登录的请求", nil))
 		}
