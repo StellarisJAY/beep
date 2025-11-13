@@ -41,9 +41,11 @@
   import { useUserStore } from '@/stores/UserStore.js';
   import { computed, ref } from 'vue';
   import SwitchWorkspaceModal from '@/components/workspace/SwitchWorkspaceModal.vue';
+  import { useChatStore } from '@/stores/ChatStore.js';
 
   const switchWorkspaceModalRef = ref();
   const userStore = useUserStore();
+  const chatStore = useChatStore();
   const router = useRouter();
   const menuItems = router
     .getRoutes()
@@ -60,6 +62,7 @@
 
   const doLogout = () => {
     userStore.clearLoginInfo();
+    chatStore.clearSession();
     router.push('/login');
   };
 
@@ -83,15 +86,15 @@
     align-items: center;
     width: 60px;
     height: 100%;
-    padding-left: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-left: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
   }
 
   .right-side {
     width: 100%;
     height: 100%;
-    padding: 10px;
+    padding: 5px;
   }
 
   .content-card {

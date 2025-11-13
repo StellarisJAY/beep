@@ -36,9 +36,37 @@ http.interceptors.response.use((response)=>{
   return Promise.reject(error);
 });
 
+const postEventStream = async (path, data, onDataReceived) => {
+  const baseURL = import.meta.env.VITE_API_URL;
+  const url = baseURL + path;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Token': localStorage.getItem('beep_token'),
+      'Accept': 'text/event-stream',
+    },
+    body: JSON.stringify(data),
+  });
+  const reader = response.body.getReader();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+    const chunk = new TextDecoder().decode(value);
+    // 截取data: 后的内容
+    const dataChunk = chunk.split('data:', 2)[1];
+    if (dataChunk) {
+      onDataReceived(dataChunk);
+    }
+  }
+};
+
 export default  {
   get: (url, params) => http.get(url, { params }),
   post: (url, data) => http.post(url, data),
   put: (url, data) => http.put(url, data),
   delete: (url) => http.delete(url),
+  postEventStream: postEventStream,
 };

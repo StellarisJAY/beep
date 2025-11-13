@@ -23,9 +23,9 @@ func (c *ConversationRepo) Create(ctx context.Context, conversation *types.Conve
 func (c *ConversationRepo) List(ctx context.Context, query types.ConversationQuery) ([]*types.Conversation, int, error) {
 	var conversations []*types.Conversation
 	var total int64
-	d := c.db.WithContext(ctx).Model(&types.Conversation{})
+	d := c.db.WithContext(ctx).Model(&types.Conversation{}).Scopes(workspaceScope(ctx))
 	if query.UserId != 0 {
-		d = d.Where("user_id = ?", query.UserId)
+		d = d.Where("create_by = ?", query.UserId)
 	}
 	if query.Title != "" {
 		d = d.Where("title like ?", "%"+query.Title+"%")
@@ -90,6 +90,15 @@ func (m *MessageRepo) Search(ctx context.Context, query types.MessageQuery) ([]*
 
 func (m *MessageRepo) Delete(ctx context.Context, id int64) error {
 	return m.db.WithContext(ctx).Delete(&types.Message{}, "id = ?", id).Error
+}
+
+func (m *MessageRepo) Update(ctx context.Context, message *types.Message) error {
+	return m.db.WithContext(ctx).Model(message).Where("id = ?", message.ID).Updates(message).Error
+}
+
+func (c *ConversationRepo) UpdateTitle(ctx context.Context, id int64, title string) error {
+	// 更新会话标题
+	return c.db.WithContext(ctx).Model(&types.Conversation{}).Where("id = ?", id).Update("title", title).Error
 }
 
 func NewMessageRepo(db *gorm.DB) interfaces.MessageRepo {

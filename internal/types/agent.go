@@ -49,6 +49,11 @@ func (a *Agent) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+func (a *Agent) ChatModelId() int64 {
+	// 从配置中获取聊天模型ID
+	return a.Config.ReAct.ChatModel
+}
+
 type AgentQuery struct {
 	Name       string `form:"name"`
 	Type       string `form:"type"`

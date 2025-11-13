@@ -50,19 +50,28 @@ const routes = [
           icon: h(SettingOutlined),
           showInMenu: true,
         },
+        redirect: '/setting/user',
         children: [
           {
             name: '用户设置',
-            path: '/setting/user',
+            path: 'user',
+            component: () => import('@/views/setting/user/UserSetting.vue'),
           },
           {
             name: '模型提供商',
-            path: '/setting/model',
+            path: 'model',
+            component: () => import('@/views/setting/model/ModelSetting.vue'),
           },
           {
             name: 'MCP',
-            path: '/setting/mcp',
-          }
+            path: 'mcp',
+            component: () => import('@/views/setting/mcp/MCPSetting.vue'),
+          },
+          {
+            name: '工作空间',
+            path: 'workspace',
+            component: () => import('@/views/setting/workspace/WorkspaceSetting.vue'),
+          },
         ]
       },
     ],

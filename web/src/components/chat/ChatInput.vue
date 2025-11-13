@@ -19,7 +19,8 @@
       <div class="toolbar-right">
         <button
           class="send-button"
-          :disabled="!inputValue.trim()"
+          :disabled="sendDisabled"
+          :loading="isLoading"
           @click="sendMessage"
         >
           发送
@@ -30,10 +31,16 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue';
+  import {useChatStore} from '@/stores/ChatStore.js';
 
-  const inputValue = ref('')
-  const textareaRef = ref(null)
+  const chatStore = useChatStore();
+  const isLoading = computed(() => chatStore.isLoading);
+  const agentId = computed(() => chatStore.agentId);
+  const inputValue = ref('');
+  const textareaRef = ref(null);
+
+  const sendDisabled = computed(()=>!agentId.value || isLoading.value || !inputValue.value.trim());
 
   // 处理输入事件，自动调整文本框高度
   const handleInput = () => {
@@ -41,7 +48,7 @@
       textareaRef.value.style.height = 'auto'
       textareaRef.value.style.height = textareaRef.value.scrollHeight + 'px'
     }
-  }
+  };
 
   // 处理键盘事件，支持Enter发送消息，Shift+Enter换行
   const handleKeydown = (event) => {
@@ -49,20 +56,20 @@
       event.preventDefault()
       sendMessage()
     }
-  }
+  };
 
   // 发送消息
   const sendMessage = () => {
     if (inputValue.value.trim()) {
       // 这里可以添加发送消息的逻辑
-      console.log('发送消息:', inputValue.value)
+      chatStore.sendMessage(inputValue.value);
       inputValue.value = ''
       // 重置文本框高度
       if (textareaRef.value) {
         textareaRef.value.style.height = 'auto'
       }
     }
-  }
+  };
 </script>
 
 <style scoped>

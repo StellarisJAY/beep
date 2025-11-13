@@ -2,6 +2,13 @@ package types
 
 import "gorm.io/gorm"
 
+const (
+	ToolStatusNone   = 0
+	ToolStatusWait   = 1 // 等待中
+	ToolStatusAccept = 2 // 接受
+	ToolStatusReject = 3 // 拒绝
+)
+
 // Message 消息
 type Message struct {
 	BaseEntity
@@ -11,6 +18,7 @@ type Message struct {
 	ToolCall       string `json:"tool_call" gorm:"type: text;"`                  // 工具调用
 	ToolCallParams string `json:"tool_call_params" gorm:"type: text;"`           // 工具调用参数
 	ToolCallId     string `json:"tool_call_id" gorm:"type: varchar(255);"`       // 工具调用ID
+	ToolStatus     int    `json:"tool_status" gorm:"type:smallint;default:0;"`   // 工具状态，0：默认，1：等待中，2：接受，3：拒绝
 }
 
 func (*Message) TableName() string {
@@ -20,11 +28,12 @@ func (*Message) TableName() string {
 // Conversation 对话
 type Conversation struct {
 	BaseEntity
-	ModelId  int64  `json:"model_id,string"`                          // 模型ID，如果为null，表示对话是智能体对话
-	AgentId  int64  `json:"agent_id,string"`                          // 智能体ID，如果为null，表示对话是模型对话
-	Title    string `json:"title" gorm:"type:varchar(256);not null;"` // 对话标题
-	Summary  string `json:"summary" gorm:"type:text;not null;"`       // 对话摘要
-	CreateBy int64  `json:"create_by,string" gorm:"not null;"`        // 创建人ID
+	ModelId     int64  `json:"model_id,string"`                          // 模型ID，如果为null，表示对话是智能体对话
+	AgentId     int64  `json:"agent_id,string"`                          // 智能体ID，如果为null，表示对话是模型对话
+	Title       string `json:"title" gorm:"type:varchar(256);not null;"` // 对话标题
+	Summary     string `json:"summary" gorm:"type:text;not null;"`       // 对话摘要
+	CreateBy    int64  `json:"create_by,string" gorm:"not null;"`        // 创建人ID
+	WorkspaceId int64  `json:"workspace_id,string" gorm:"not null;"`     // 工作空间ID
 }
 
 func (*Conversation) TableName() string {
@@ -39,6 +48,12 @@ func (c *Conversation) BeforeCreate(tx *gorm.DB) error {
 		createBy, ok := tx.Statement.Context.Value(UserIdContextKey).(int64)
 		if ok {
 			c.CreateBy = createBy
+		}
+	}
+	if c.WorkspaceId == 0 {
+		workspaceId, ok := tx.Statement.Context.Value(WorkspaceIdContextKey).(int64)
+		if ok {
+			c.WorkspaceId = workspaceId
 		}
 	}
 	return nil

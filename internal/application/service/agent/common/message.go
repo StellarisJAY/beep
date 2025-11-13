@@ -23,33 +23,32 @@ func ReceiveStream(stream *chat.Stream, msgId, conversationId int64, messageChan
 		if err != nil {
 			return nil, err
 		}
+		msg := types.Message{
+			ConversationId: conversationId,
+			Role:           string(schema.Assistant),
+			Content:        chunk.Content,
+			BaseEntity:     types.BaseEntity{ID: msgId, CreatedAt: recvTime, UpdatedAt: recvTime},
+		}
+		sb.WriteString(chunk.Content)
 		if len(chunk.ToolCalls) > 0 {
 			toolCall := chunk.ToolCalls[0]
-			finalMessage.ID = msgId
-			finalMessage.ConversationId = conversationId
-			finalMessage.Role = string(schema.Assistant)
-			sb.WriteString(chunk.Content)
+			finalMessage.ToolStatus = types.ToolStatusWait
 			finalMessage.ToolCall += toolCall.ToolName
 			finalMessage.ToolCallParams += toolCall.Arguments
+			msg.ToolCall = toolCall.ToolName
+			msg.ToolCallParams = toolCall.Arguments
+			msg.ToolStatus = types.ToolStatusWait
 			if toolCall.ToolCallId != "" {
+				msg.ToolCallId = toolCall.ToolCallId
 				finalMessage.ToolCallId = toolCall.ToolCallId
 			}
 		}
-		if chunk.Content != "" {
-			sb.WriteString(chunk.Content)
-			messageChan <- types.Message{
-				BaseEntity:     types.BaseEntity{ID: msgId, CreatedAt: recvTime, UpdatedAt: recvTime},
-				Role:           string(schema.Assistant),
-				Content:        chunk.Content,
-				ConversationId: conversationId,
-			}
-		}
+		messageChan <- msg
 	}
 	finalMessage.ID = msgId
 	finalMessage.ConversationId = conversationId
 	finalMessage.Role = string(schema.Assistant)
 	finalMessage.Content = sb.String()
-	messageChan <- *finalMessage
 	return finalMessage, nil
 }
 

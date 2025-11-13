@@ -24,6 +24,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 func NewContainer() *dig.Container {
@@ -66,6 +67,7 @@ func NewContainer() *dig.Container {
 	must(container.Provide(service.NewMCPServerService))
 	must(container.Provide(service.NewDocumentService))
 	must(container.Provide(service.NewMemoryService))
+	must(container.Provide(service.NewConversationService))
 	// 智能体
 	must(container.Provide(service.NewAgentService))
 	// 智能体运行工厂
@@ -83,6 +85,7 @@ func NewContainer() *dig.Container {
 	must(container.Provide(handler.NewModelHandler))
 	must(container.Provide(handler.NewMCPServerHandler))
 	must(container.Provide(handler.NewDocumentHandler))
+	must(container.Provide(handler.NewConversationHandler))
 	// 智能体
 	must(container.Provide(handler.NewAgentHandler))
 	must(container.Provide(handler.NewChatHandler))
@@ -107,7 +110,9 @@ func InitDatabase(config *config.Config) (*gorm.DB, error) {
 	default:
 		return nil, errors.New("unsupported database")
 	}
-	db, err := gorm.Open(dialector, &gorm.Config{})
+	db, err := gorm.Open(dialector, &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return nil, err
 	}

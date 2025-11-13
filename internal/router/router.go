@@ -26,6 +26,7 @@ type Params struct {
 	DocumentHandler      *handler.DocumentHandler      // 文档
 	AgentHandler         *handler.AgentHandler         // 智能体
 	ChatHandler          *handler.ChatHandler          // 聊天
+	ConversationHandler  *handler.ConversationHandler  // 对话
 }
 
 // InitRouter 初始化路由
@@ -54,6 +55,8 @@ func InitRouter(params Params) (*gin.Engine, error) {
 	initKnowledgeRouter(v1, params)
 	// 模型，mcp
 	initModelRouter(v1, params)
+	// 对话
+	initConversationRouter(v1, params)
 	return r, nil
 }
 
@@ -143,5 +146,16 @@ func initAgentRouter(r *gin.RouterGroup, params Params) {
 		chat.Use(middleware.Auth(params.Config, params.Redis))
 		chat.POST("/send", params.ChatHandler.SendMessage)
 		chat.POST("/signal", params.ChatHandler.SignalTool)
+	}
+}
+
+// initConversationRouter 初始化对话路由
+func initConversationRouter(r *gin.RouterGroup, params Params) {
+	// 对话
+	conversation := r.Group("/conversation")
+	{
+		conversation.Use(middleware.Auth(params.Config, params.Redis))
+		conversation.GET("/list", params.ConversationHandler.List)
+		conversation.GET("/messages", params.ConversationHandler.ListMessages)
 	}
 }

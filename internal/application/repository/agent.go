@@ -35,7 +35,9 @@ func (a *AgentRepo) Delete(ctx context.Context, id int64) error {
 
 func (a *AgentRepo) List(ctx context.Context, query types.AgentQuery) ([]*types.Agent, error) {
 	var agents []*types.Agent
-	d := a.db.WithContext(ctx).Model(&types.Agent{}).Scopes(workspaceScope(ctx))
+	d := a.db.WithContext(ctx).Model(&types.Agent{}).
+		Scopes(workspaceScope(ctx)).
+		Select("id, name, type, description, created_at, updated_at, create_by, workspace_id")
 	if query.Name != "" {
 		d = d.Where("name LIKE ?", "%"+query.Name+"%")
 	}

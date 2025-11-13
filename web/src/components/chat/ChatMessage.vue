@@ -1,74 +1,96 @@
 <template>
   <div :class="`message-container message-container__${role}`">
-    <div :class="`message-content message-content__${role}`">
-      <div v-if="role === 'user'">
-        {{ content }}
-      </div>
-      <div v-else v-html="marked.parse(content)" />
+    <div v-if="role === 'user'">
+      {{ content }}
     </div>
-    <div class="message-timestamp">
-      {{ formatTime(timestamp) }}
+    <div v-else-if="isToolCallRequest">
+      <div v-html="DOMPurify.sanitize(marked.parse(content))" />
+      <a-collapse>
+        <a-collapse-panel>
+          <template #header> 工具调用请求 </template>
+          <template #extra>
+            <a-button v-if="toolCallStatus === 1 && !isLoading" @click="signalToolCall(true)"
+              >接受</a-button
+            >
+            <a-button v-if="toolCallStatus === 1 && !isLoading" @click="signalToolCall(false)"
+              >拒绝</a-button
+            >
+            <a-tag v-if="toolCallStatus === 2" type="success">已接受</a-tag>
+            <a-tag v-if="toolCallStatus === 3" type="error">已拒绝</a-tag>
+          </template>
+          <a-descriptions :column="1">
+            <a-descriptions-item label="工具名称">{{ toolCall }}</a-descriptions-item>
+            <a-descriptions-item label="工具参数">{{ toolParams }}</a-descriptions-item>
+          </a-descriptions>
+        </a-collapse-panel>
+      </a-collapse>
     </div>
+    <!-- 工具调用结果 -->
+    <div v-else-if="role === 'tool'">
+      <a-collapse>
+        <a-collapse-panel header="工具调用结果">{{ content }}</a-collapse-panel>
+      </a-collapse>
+    </div>
+    <div v-else v-html="DOMPurify.sanitize(marked.parse(content))" />
   </div>
 </template>
 
 <script setup>
-  import {marked} from 'marked';
+  import DOMPurify from 'dompurify';
+  import { marked } from 'marked';
+  import { computed } from 'vue';
+  import { useChatStore } from '@/stores/ChatStore.js';
 
   const props = defineProps({
     content: {
       type: String,
-      default: ''
+      default: '',
     },
     role: {
       type: String,
-      default: 'user'
+      default: 'user',
     },
-    timestamp: {
-      type: Date,
-      default: () => {
-        return new Date();
-      }
-    }
+    toolCall: {
+      type: String,
+      default: null,
+    },
+    toolParams: {
+      type: String,
+      default: null,
+    },
+    toolCallStatus: {
+      type: Number,
+      default: 0,
+    },
   });
 
-  const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
-  };
+  const chatStore = useChatStore();
+  const isLoading = computed(() => chatStore.isLoading);
+  const isToolCallRequest = computed(() => props.toolCall && props.role === 'assistant');
 
+  const signalToolCall = (accept) => {
+    chatStore.signalToolCall(accept);
+  };
 </script>
 
 <style scoped>
-.message-container {
-  max-width: 100%;
-  min-width: 100px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.message-content {
-  padding: 10px;
-  border-radius: 10px;
-}
+  .message-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
 
-.message-container__user {
-  align-items: end;
-}
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+  }
 
-.message-content__user {
-  background-color: #f5f7ff;
-}
-.message-content__assistant {
-  background-color: #ffffff;
-}
-.message-timestamp {
-  font-size: 12px;
-  color: #888888;
-}
+  .message-container__user {
+    align-items: end;
+    background-color: #f5f7ff;
+  }
+
+  .message-container__assistant {
+    align-items: start;
+  }
 </style>

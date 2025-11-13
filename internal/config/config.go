@@ -62,6 +62,7 @@ type Config struct {
 		Password string `yaml:"password"` // Milvus密码
 		Database string `yaml:"database"` // Milvus数据库名称
 	} `yaml:"milvus"` // Milvus配置
+	ConversationTitlePrompt string `yaml:"conversationTitlePrompt"` // 会话标题提示词
 }
 
 // LoadConfig 加载配置文件

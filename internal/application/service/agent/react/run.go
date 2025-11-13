@@ -114,6 +114,26 @@ func (a *AgentRun) SignalTool(ctx context.Context, signal types.ToolSignal) (*ty
 		return nil, errors.New("没有工具调用消息")
 	}
 	lastMessage := lastMessages[len(lastMessages)-1]
+	if signal.Accept {
+		// 更新工具调用状态为接受
+		lastMessage.ToolStatus = types.ToolStatusAccept
+	} else {
+		// 更新工具调用状态为拒绝
+		lastMessage.ToolStatus = types.ToolStatusReject
+	}
+	// 更新工具调用消息
+	if err := a.messageRepo.Update(ctx, lastMessage); err != nil {
+		return nil, err
+	}
+
+	// 发送工具调用状态更新消息
+	a.messageChan <- types.Message{
+		BaseEntity:     types.BaseEntity{ID: lastMessage.ID},
+		ConversationId: lastMessage.ConversationId,
+		Role:           chat.RoleAssistant,
+		ToolStatus:     lastMessage.ToolStatus,
+	}
+
 	// 调用工具
 	parts := strings.SplitN(lastMessage.ToolCall, ":", 3)
 	cmd, toolSet, toolName := parts[0], parts[1], parts[2]
@@ -172,6 +192,7 @@ func (a *AgentRun) toolReply(ctx context.Context, toolResult string, toolCallId 
 		ConversationId: a.ConversationId,
 		ToolCallId:     toolCallId,
 	}
+	toolMessageEnt.ID = util.SnowflakeId()
 	toolMessageEnt.CreatedAt = time.Now()
 	a.messageChan <- *toolMessageEnt
 	_ = a.messageRepo.Create(ctx, toolMessageEnt)

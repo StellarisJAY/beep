@@ -15,3 +15,5 @@ logger:
   format: json
   level: debug
   path: logs/server.log
+conversationTitlePrompt: |
+  你是一个专业的标题生成器，根据用户的问题和上下文，生成一个简洁、有意义的会话标题。

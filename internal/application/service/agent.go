@@ -1,10 +1,14 @@
 package service
 
 import (
+	"beep/internal/config"
 	"beep/internal/errors"
+	"beep/internal/models/chat"
 	"beep/internal/types"
 	"beep/internal/types/interfaces"
 	"context"
+	"log/slog"
+	"time"
 )
 
 type AgentService struct {
@@ -12,6 +16,8 @@ type AgentService struct {
 	conversationRepo interfaces.ConversationRepo
 	agentRunFactory  interfaces.AgentRunFactory
 	chatService      interfaces.ChatService
+	config           *config.Config
+	modelService     interfaces.ModelService
 }
 
 func (a *AgentService) Create(ctx context.Context, req types.CreateAgentReq) error {
@@ -94,13 +100,17 @@ func (a *AgentService) Run(ctx context.Context, req types.AgentRunReq) error {
 
 	// 没有指定会话ID，创建一个新会话
 	if req.ConversationId == 0 {
+		
 		conversation := &types.Conversation{
 			AgentId: req.Agent.ID,
+			Title:   string([]rune(req.Query)[:min(len(req.Query), 20)]), // 暂时使用查询作为标题
 		}
 		if err := a.conversationRepo.Create(ctx, conversation); err != nil {
 			return errors.NewInternalServerError("创建会话失败", err)
 		}
 		req.ConversationId = conversation.ID
+		// 异步生成会话标题和摘要
+		go a.genConversationTitleAndSummary(conversation.ID, req.Query, req.Agent)
 	}
 
 	run, err := a.agentRunFactory.CreateAgentRun(req)
@@ -114,6 +124,42 @@ func (a *AgentService) Run(ctx context.Context, req types.AgentRunReq) error {
 	}
 
 	return a.chatService.MessageLoop(ctx, resp.MessageChan, resp.ErrorChan)
+}
+
+func (a *AgentService) genConversationTitleAndSummary(conversationId int64, query string, agent *types.Agent) {
+	defer func() {
+		if err := recover(); err != nil {
+			slog.Error("genConversationTitleAndSummary panic", "err", err)
+		}
+	}()
+	modelId := agent.ChatModelId()
+	// 初始化模型
+	modelDetail, err := a.modelService.GetModelDetail(context.Background(), modelId)
+	if err != nil {
+		panic(err)
+	}
+	chatModel := chat.NewChatModel(*modelDetail)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	messages := []*chat.Message{
+		{
+			Role:    chat.RoleSystem,
+			Content: a.config.ConversationTitlePrompt,
+		},
+		{
+			Role:    chat.RoleUser,
+			Content: query,
+		},
+	}
+	// 调用模型
+	resp, err := chatModel.Generate(ctx, messages, &chat.Options{})
+	if err != nil {
+		panic(err)
+	}
+	// 保存会话标题
+	if err := a.conversationRepo.UpdateTitle(ctx, conversationId, resp.Content); err != nil {
+		panic(err)
+	}
 }
 
 func (a *AgentService) SignalTool(ctx context.Context, req types.ToolSignal) error {
@@ -149,6 +195,15 @@ func (a *AgentService) SignalTool(ctx context.Context, req types.ToolSignal) err
 func NewAgentService(repo interfaces.AgentRepo,
 	conversationRepo interfaces.ConversationRepo,
 	agentRunFactory interfaces.AgentRunFactory,
-	chatService interfaces.ChatService) interfaces.AgentService {
-	return &AgentService{repo: repo, conversationRepo: conversationRepo, agentRunFactory: agentRunFactory, chatService: chatService}
+	chatService interfaces.ChatService,
+	config *config.Config,
+	modelService interfaces.ModelService) interfaces.AgentService {
+	return &AgentService{
+		repo:             repo,
+		conversationRepo: conversationRepo,
+		agentRunFactory:  agentRunFactory,
+		chatService:      chatService,
+		config:           config,
+		modelService:     modelService,
+	}
 }
