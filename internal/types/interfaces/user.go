@@ -14,7 +14,7 @@ type UserRepo interface {
 	// Delete 删除用户
 	Delete(ctx context.Context, user *types.User) error
 	// FindById 根据ID查找用户
-	FindById(ctx context.Context, userId int64) (*types.User, error)
+	FindById(ctx context.Context, userId string) (*types.User, error)
 	// FindByEmail 根据邮箱查找用户
 	FindByEmail(ctx context.Context, email string) (*types.User, error)
 	// CheckPassword 检查密码是否正确

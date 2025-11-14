@@ -25,14 +25,14 @@ const (
 // UserWorkspace 用户-工作空间关联
 type UserWorkspace struct {
 	BaseEntity
-	UserId      int64         `json:"user_id" gorm:"not null;"`
-	WorkspaceId int64         `json:"workspace_id" gorm:"not null;"`
+	UserId      string        `json:"user_id" gorm:"not null;type:varchar(36);"`
+	WorkspaceId string        `json:"workspace_id" gorm:"not null;type:varchar(36);"`
 	Role        WorkspaceRole `json:"role" gorm:"default:'owner';not null;type:varchar(16)"`
 }
 
 // WorkspaceMember 工作空间成员
 type WorkspaceMember struct {
-	Id            int64         `json:"id,string"`
+	Id            string        `json:"id,string"`
 	Name          string        `json:"name"`
 	Email         string        `json:"email"`
 	Role          WorkspaceRole `json:"role"`
@@ -41,13 +41,13 @@ type WorkspaceMember struct {
 
 // InviteWorkspaceMemberReq 邀请工作空间成员
 type InviteWorkspaceMemberReq struct {
-	WorkspaceId int64         `json:"workspace_id,string"`
+	WorkspaceId string        `json:"workspace_id,string"`
 	Emails      []string      `json:"emails"` // 邀请的邮箱列表
 	Role        WorkspaceRole `json:"role"`   // 加入后的角色
 }
 
 type SetWorkspaceRoleReq struct {
-	WorkspaceId int64         `json:"workspace_id,string"`
-	UserId      int64         `json:"user_id,string"`
+	WorkspaceId string        `json:"workspace_id,string"`
+	UserId      string        `json:"user_id,string"`
 	Role        WorkspaceRole `json:"role"`
 }

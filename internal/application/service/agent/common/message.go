@@ -11,7 +11,7 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
-func ReceiveStream(stream *chat.Stream, msgId, conversationId int64, messageChan chan types.Message) (*types.Message, error) {
+func ReceiveStream(stream *chat.Stream, msgId, conversationId string, messageChan chan types.Message) (*types.Message, error) {
 	recvTime := time.Now()
 	sb := new(strings.Builder)
 	finalMessage := &types.Message{}

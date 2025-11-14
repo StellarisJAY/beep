@@ -86,10 +86,10 @@
         </a-collapse-panel>
         <a-collapse-panel header="记忆选项">
           <a-form-item label="短期记忆" name="enable_short_term_memory">
-            <a-switch v-model:value="agentConfig.memory_option.enable_short_term_memory" />
+            <a-switch v-model:checked="agentConfig.memory_option.enable_short_term_memory" />
           </a-form-item>
           <a-form-item label="长期记忆" name="enable_long_term_memory">
-            <a-switch v-model:value="agentConfig.memory_option.enable_long_term_memory" />
+            <a-switch v-model:checked="agentConfig.memory_option.enable_long_term_memory" />
           </a-form-item>
           <a-form-item label="记忆控制" name="memory_control">
             <a-radio-group v-model:value="agentConfig.memory_option.memory_control">

@@ -7,6 +7,9 @@
       <a-form-item label="MCP服务地址" name="url">
         <a-input v-model:value="factoryForm.url" placeholder="请输入MCP服务地址" />
       </a-form-item>
+      <a-form-item label="MCP服务描述" name="description">
+        <a-input v-model:value="factoryForm.description" placeholder="请输入MCP服务描述" />
+      </a-form-item>
     </a-form>
   </a-modal>
 </template>
@@ -25,10 +28,12 @@
     id: null,
     name: '',
     url: '',
+    description: '',
   });
   const rules = ref({
     name: [{ required: true, message: '请输入MCP服务名称' }],
     url: [{ required: true, message: '请输入MCP服务地址' }],
+    description: [{ required: true, message: '请输入MCP服务描述' }],
   });
 
   const open = (record) => {
@@ -39,6 +44,7 @@
         id: null,
         name: '',
         url: '',
+        description: '',
       };
     }
     visible.value = true;

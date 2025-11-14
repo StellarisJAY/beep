@@ -1,6 +1,9 @@
 package util
 
-import "github.com/bwmarrin/snowflake"
+import (
+	"github.com/bwmarrin/snowflake"
+	"github.com/google/uuid"
+)
 
 var node *snowflake.Node
 
@@ -10,4 +13,9 @@ func init() {
 
 func SnowflakeId() int64 {
 	return node.Generate().Int64()
+}
+
+func UUID() string {
+	id, _ := uuid.NewV7()
+	return id.String()
 }

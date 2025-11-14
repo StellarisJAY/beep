@@ -5,7 +5,6 @@ import (
 	"beep/internal/types"
 	"beep/internal/types/interfaces"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,9 +54,9 @@ func (k *KnowledgeBaseHandler) Update(c *gin.Context) {
 }
 
 func (k *KnowledgeBaseHandler) Delete(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil {
-		panic(errors.NewBadRequestError("", err))
+	id := c.Param("id")
+	if id == "" {
+		panic(errors.NewBadRequestError("id不能为空", nil))
 	}
 	if err := k.service.Delete(c, id); err != nil {
 		panic(err)

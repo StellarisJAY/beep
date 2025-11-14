@@ -14,12 +14,12 @@ type KnowledgeBase struct {
 	BaseEntity
 	Name           string       `json:"name" gorm:"not null;type:varchar(64);"`
 	Description    string       `json:"description"  gorm:"not null;type:varchar(255);"`
-	EmbeddingModel int64        `json:"embedding_model" gorm:"not null;"` // 知识库的嵌入模型
-	ChatModel      int64        `json:"chat_model" gorm:"not null;"`      // 知识库的聊天模型
-	WorkspaceId    int64        `json:"workspace_id" gorm:"not null;"`
+	EmbeddingModel string       `json:"embedding_model" gorm:"not null;"` // 知识库的嵌入模型
+	ChatModel      string       `json:"chat_model" gorm:"not null;"`      // 知识库的聊天模型
+	WorkspaceId    string       `json:"workspace_id" gorm:"not null;type:varchar(36);"`
 	Public         bool         `json:"public" gorm:"not null;"`
-	CreateBy       int64        `json:"create_by"`
-	LastUpdateBy   int64        `json:"last_update_by"`
+	CreateBy       string       `json:"create_by" gorm:"not null;type:varchar(36);"`
+	LastUpdateBy   string       `json:"last_update_by" gorm:"not null;type:varchar(36);"`
 	ChunkOptions   ChunkOptions `json:"chunk_options" gorm:"type:json;"` // 切片选项
 }
 
@@ -32,15 +32,15 @@ func (kb *KnowledgeBase) BeforeCreate(tx *gorm.DB) error {
 	if err := kb.BaseEntity.BeforeCreate(tx); err != nil {
 		return err
 	}
-	if kb.WorkspaceId == 0 {
+	if kb.WorkspaceId == "" {
 		// 从context中获取workspaceId
-		if workspaceId, ok := tx.Statement.Context.Value(WorkspaceIdContextKey).(int64); ok {
+		if workspaceId, ok := tx.Statement.Context.Value(WorkspaceIdContextKey).(string); ok {
 			kb.WorkspaceId = workspaceId
 		}
 	}
-	if kb.CreateBy == 0 {
+	if kb.CreateBy == "" {
 		// 从context中获取createBy
-		if createBy, ok := tx.Statement.Context.Value(UserIdContextKey).(int64); ok {
+		if createBy, ok := tx.Statement.Context.Value(UserIdContextKey).(string); ok {
 			kb.CreateBy = createBy
 		}
 	}
@@ -48,11 +48,11 @@ func (kb *KnowledgeBase) BeforeCreate(tx *gorm.DB) error {
 }
 
 func (kb *KnowledgeBase) StorageBucketName() string {
-	return fmt.Sprintf("beep-kb-%d", kb.ID)
+	return fmt.Sprintf("beep-kb-%s", kb.ID)
 }
 
 func (kb *KnowledgeBase) StorageCollectionName() string {
-	return fmt.Sprintf("beep-kb-%d", kb.ID)
+	return fmt.Sprintf("beep-kb-%s", kb.ID)
 }
 
 // ChunkOptions 切片选项
@@ -78,23 +78,23 @@ type KnowledgeBaseQuery struct {
 	BaseQuery
 	Name       string `form:"name"`
 	CreateByMe bool   `form:"create_by_me"`
-	Ids        []int64
+	Ids        []string
 }
 
 type CreateKnowledgeBaseReq struct {
 	Name           string       `json:"name" binding:"required"`
 	Description    string       `json:"description" binding:"required"`
-	EmbeddingModel int64        `json:"embedding_model,string" binding:"required"`
-	ChatModel      int64        `json:"chat_model,string" binding:"required"`
+	EmbeddingModel string       `json:"embedding_model,string" binding:"required"`
+	ChatModel      string       `json:"chat_model,string" binding:"required"`
 	Public         *bool        `json:"public" binding:"required"`
 	ChunkOptions   ChunkOptions `json:"chunk_options" binding:"required"`
 }
 
 type UpdateKnowledgeBaseReq struct {
-	Id           int64        `json:"id,string" binding:"required"`
+	Id           string       `json:"id,string" binding:"required"`
 	Name         string       `json:"name"`
 	Description  string       `json:"description"`
-	ChatModel    int64        `json:"chat_model,string"`
+	ChatModel    string       `json:"chat_model,string"`
 	Public       *bool        `json:"public"`
 	ChunkOptions ChunkOptions `json:"chunk_options"`
 }
@@ -106,5 +106,5 @@ type RetrieverOption struct {
 	SearchType SearchType `json:"search_type"` // 搜索类型: fulltext, vector, hybrid
 	HybridType HybridType `json:"hybrid_type"` // 混合搜索类型: weight, rerank
 	Weight     float64    `json:"weight"`      // 混合搜索向量权重
-	Reranker   int64      `json:"reranker"`    // 重排模型ID
+	Reranker   string     `json:"reranker"`    // 重排模型ID
 }

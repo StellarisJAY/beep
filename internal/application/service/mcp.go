@@ -46,7 +46,7 @@ func (m *MCPServerService) Update(ctx context.Context, req types.UpdateMCPServer
 	return nil
 }
 
-func (m *MCPServerService) Delete(ctx context.Context, id int64) error {
+func (m *MCPServerService) Delete(ctx context.Context, id string) error {
 	if err := m.mcpServerRepo.Delete(ctx, id); err != nil {
 		return errors.NewInternalServerError("删除MCP服务失败", err)
 	}
@@ -62,7 +62,7 @@ func (m *MCPServerService) List(ctx context.Context) ([]*types.MCPServer, error)
 	return list, nil
 }
 
-func (m *MCPServerService) Get(ctx context.Context, id int64) (*types.MCPServer, error) {
+func (m *MCPServerService) Get(ctx context.Context, id string) (*types.MCPServer, error) {
 	ms, err := m.mcpServerRepo.Get(ctx, id)
 	if errors2.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.NewNotFoundError("MCP服务不存在", nil)
@@ -94,7 +94,7 @@ func (m *MCPServerService) ListTools(ctx context.Context, ms *types.MCPServer) e
 	return nil
 }
 
-func (m *MCPServerService) getMCPServer(ctx context.Context, id int64) (*types.MCPServer, error) {
+func (m *MCPServerService) getMCPServer(ctx context.Context, id string) (*types.MCPServer, error) {
 	mcpServer, err := m.mcpServerRepo.Get(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("获取MCP服务失败", err)
@@ -105,7 +105,7 @@ func (m *MCPServerService) getMCPServer(ctx context.Context, id int64) (*types.M
 	return mcpServer, nil
 }
 
-func (m *MCPServerService) Call(ctx context.Context, id int64, request *mcp.CallToolParams) (*mcp.CallToolResult, error) {
+func (m *MCPServerService) Call(ctx context.Context, id string, request *mcp.CallToolParams) (*mcp.CallToolResult, error) {
 	mcpServer, err := m.getMCPServer(ctx, id)
 	if err != nil {
 		return nil, err
@@ -126,7 +126,7 @@ func (m *MCPServerService) Call(ctx context.Context, id int64, request *mcp.Call
 }
 
 // CallWithElicitation 带有MCP征询机制的调用工具
-func (m *MCPServerService) CallWithElicitation(ctx context.Context, id int64, request *mcp.CallToolParams) (*mcp.CallToolResult, error) {
+func (m *MCPServerService) CallWithElicitation(ctx context.Context, id string, request *mcp.CallToolParams) (*mcp.CallToolResult, error) {
 	mcpServer, err := m.getMCPServer(ctx, id)
 	if err != nil {
 		return nil, err

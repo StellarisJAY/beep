@@ -46,7 +46,7 @@ func (k *KnowledgeBaseRepo) List(ctx context.Context, query types.KnowledgeBaseQ
 	return list, int(total), nil
 }
 
-func (k *KnowledgeBaseRepo) FindById(ctx context.Context, id int64) (*types.KnowledgeBase, error) {
+func (k *KnowledgeBaseRepo) FindById(ctx context.Context, id string) (*types.KnowledgeBase, error) {
 	var kb *types.KnowledgeBase
 	err := k.db.WithContext(ctx).
 		Model(&types.KnowledgeBase{}).
@@ -63,6 +63,6 @@ func (k *KnowledgeBaseRepo) Update(ctx context.Context, kb *types.KnowledgeBase)
 	return k.db.WithContext(ctx).Model(kb).Where("id = ?", kb.ID).Updates(kb).Error
 }
 
-func (k *KnowledgeBaseRepo) Delete(ctx context.Context, id int64) error {
+func (k *KnowledgeBaseRepo) Delete(ctx context.Context, id string) error {
 	return k.db.WithContext(ctx).Delete(&types.KnowledgeBase{}, "id = ?", id).Error
 }

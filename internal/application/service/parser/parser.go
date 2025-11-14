@@ -58,7 +58,7 @@ func (d *DocumentParser) Parse(_ context.Context, info types.ParseInfo) error {
 	return nil
 }
 
-func (d *DocumentParser) CancelParse(ctx context.Context, docId int64) error {
+func (d *DocumentParser) CancelParse(ctx context.Context, docId string) error {
 	value, ok := runningParsers.LoadAndDelete(docId)
 	if !ok {
 		return nil

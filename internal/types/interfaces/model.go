@@ -14,7 +14,7 @@ type ModelFactoryRepo interface {
 	// List 所有模型供应商
 	List(ctx context.Context) ([]*types.ModelFactory, error)
 	// Delete 删除模型供应商
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id string) error
 }
 
 // ModelRepo 模型数据库
@@ -28,9 +28,9 @@ type ModelRepo interface {
 	// List 所有模型
 	List(ctx context.Context, query types.ListModelQuery) ([]*types.Model, error)
 	// Delete 删除模型
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id string) error
 	// GetDetail 获取模型详情
-	GetDetail(ctx context.Context, id int64) (*types.ModelDetail, error)
+	GetDetail(ctx context.Context, id string) (*types.ModelDetail, error)
 }
 
 // ModelService 模型服务
@@ -44,5 +44,5 @@ type ModelService interface {
 	// ListModels 列表模型
 	ListModels(ctx context.Context, query types.ListModelQuery) ([]*types.Model, error)
 	// GetModelDetail 获取模型详情
-	GetModelDetail(ctx context.Context, id int64) (*types.ModelDetail, error)
+	GetModelDetail(ctx context.Context, id string) (*types.ModelDetail, error)
 }

@@ -32,7 +32,7 @@ func (m *ModelFactoryRepo) List(ctx context.Context) ([]*types.ModelFactory, err
 	return mfs, nil
 }
 
-func (m *ModelFactoryRepo) Delete(ctx context.Context, id int64) error {
+func (m *ModelFactoryRepo) Delete(ctx context.Context, id string) error {
 	return m.db.WithContext(ctx).Delete(&types.ModelFactory{}, "id = ?", id).Error
 }
 
@@ -55,7 +55,7 @@ func (m *ModelRepo) Update(ctx context.Context, mf *types.Model) error {
 func (m *ModelRepo) List(ctx context.Context, query types.ListModelQuery) ([]*types.Model, error) {
 	var ms []*types.Model
 	d := m.db.WithContext(ctx).Model(&types.Model{}).Scopes(workspaceScope(ctx))
-	if query.FactoryId != 0 {
+	if query.FactoryId != "" {
 		d = d.Where("factory_id = ?", query.FactoryId)
 	}
 	if query.Type != "" {
@@ -67,11 +67,11 @@ func (m *ModelRepo) List(ctx context.Context, query types.ListModelQuery) ([]*ty
 	return ms, nil
 }
 
-func (m *ModelRepo) Delete(ctx context.Context, id int64) error {
+func (m *ModelRepo) Delete(ctx context.Context, id string) error {
 	return m.db.WithContext(ctx).Delete(&types.Model{}, "id = ?", id).Error
 }
 
-func (m *ModelRepo) GetDetail(ctx context.Context, id int64) (*types.ModelDetail, error) {
+func (m *ModelRepo) GetDetail(ctx context.Context, id string) (*types.ModelDetail, error) {
 	var md types.ModelDetail
 	if err := m.db.WithContext(ctx).
 		Model(&types.Model{}).

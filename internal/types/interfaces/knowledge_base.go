@@ -12,11 +12,11 @@ type KnowledgeBaseRepo interface {
 	// List 知识库列表
 	List(ctx context.Context, query types.KnowledgeBaseQuery) ([]*types.KnowledgeBase, int, error)
 	// FindById 根据ID查找知识库
-	FindById(ctx context.Context, id int64) (*types.KnowledgeBase, error)
+	FindById(ctx context.Context, id string) (*types.KnowledgeBase, error)
 	// Update 更新知识库
 	Update(ctx context.Context, kb *types.KnowledgeBase) error
 	// Delete 删除知识库
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id string) error
 }
 
 // KnowledgeBaseService 知识库服务接口
@@ -28,5 +28,5 @@ type KnowledgeBaseService interface {
 	// Update 更新知识库
 	Update(ctx context.Context, req types.UpdateKnowledgeBaseReq) error
 	// Delete 删除知识库
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id string) error
 }

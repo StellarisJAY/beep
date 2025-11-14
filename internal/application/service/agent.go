@@ -43,7 +43,7 @@ func (a *AgentService) Create(ctx context.Context, req types.CreateAgentReq) err
 	return nil
 }
 
-func (a *AgentService) Detail(ctx context.Context, id int64) (*types.Agent, error) {
+func (a *AgentService) Detail(ctx context.Context, id string) (*types.Agent, error) {
 	agent, err := a.repo.FindById(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("查询智能体失败", err)
@@ -74,7 +74,7 @@ func (a *AgentService) Update(ctx context.Context, req types.UpdateAgentReq) err
 	return nil
 }
 
-func (a *AgentService) Delete(ctx context.Context, id int64) error {
+func (a *AgentService) Delete(ctx context.Context, id string) error {
 	if err := a.repo.Delete(ctx, id); err != nil {
 		return errors.NewInternalServerError("删除智能体失败", err)
 	}
@@ -92,7 +92,7 @@ func (a *AgentService) List(ctx context.Context, query types.AgentQuery) ([]*typ
 func (a *AgentService) Run(ctx context.Context, req types.AgentRunReq) error {
 	// 如果有指定智能体id，且是普通模式
 	// 查询智能体配置
-	if req.AgentId != 0 {
+	if req.AgentId != "" {
 		agent, err := a.repo.FindById(ctx, req.AgentId)
 		if err != nil {
 			return errors.NewInternalServerError("查询智能体失败", err)
@@ -101,7 +101,7 @@ func (a *AgentService) Run(ctx context.Context, req types.AgentRunReq) error {
 	}
 
 	// 没有指定会话ID，创建一个新会话
-	if req.ConversationId == 0 {
+	if req.ConversationId == "" {
 
 		conversation := &types.Conversation{
 			AgentId: req.Agent.ID,
@@ -128,7 +128,7 @@ func (a *AgentService) Run(ctx context.Context, req types.AgentRunReq) error {
 	return a.chatService.MessageLoop(ctx, resp.MessageChan, resp.ErrorChan)
 }
 
-func (a *AgentService) genConversationTitleAndSummary(conversationId int64, query string, agent *types.Agent) {
+func (a *AgentService) genConversationTitleAndSummary(conversationId string, query string, agent *types.Agent) {
 	defer func() {
 		if err := recover(); err != nil {
 			slog.Error("genConversationTitleAndSummary panic", "err", err)
@@ -166,13 +166,13 @@ func (a *AgentService) genConversationTitleAndSummary(conversationId int64, quer
 
 func (a *AgentService) SignalTool(ctx context.Context, req types.ToolSignal) error {
 	// 没有指定会话ID，创建一个新会话
-	if req.ConversationId == 0 {
+	if req.ConversationId == "" {
 		return errors.NewBadRequestError("会话ID不能为空", nil)
 	}
 
 	var agentRunReq types.AgentRunReq
 
-	if req.AgentId != 0 {
+	if req.AgentId != "" {
 		agent, err := a.repo.FindById(ctx, req.AgentId)
 		if err != nil {
 			return errors.NewInternalServerError("查询智能体失败", err)
@@ -194,7 +194,7 @@ func (a *AgentService) SignalTool(ctx context.Context, req types.ToolSignal) err
 	return a.chatService.MessageLoop(ctx, resp.MessageChan, resp.ErrorChan)
 }
 
-func (a *AgentService) FindById(ctx context.Context, id int64) (*types.AgentDetail, error) {
+func (a *AgentService) FindById(ctx context.Context, id string) (*types.AgentDetail, error) {
 	agent, err := a.repo.FindById(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("查询智能体失败", err)
@@ -203,7 +203,7 @@ func (a *AgentService) FindById(ctx context.Context, id int64) (*types.AgentDeta
 	detail := &types.AgentDetail{
 		Agent: *agent,
 	}
-	
+
 	if len(agent.McpServerIds()) > 0 {
 		// 查询关联的MCP服务器
 		mcpServers, err := a.mcpServerRepo.ListWithoutTools(ctx, types.MCPServerQuery{

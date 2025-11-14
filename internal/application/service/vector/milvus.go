@@ -117,8 +117,8 @@ func fromResultSetToQueryResult(resultSet milvusclient.ResultSet) []types.Querie
 		scores = make([]float32, resultSet.Len())
 	}
 	for i := 0; i < resultSet.Len(); i++ {
-		id, _ := idColumn.GetAsInt64(i)
-		docId, _ := docIdColumn.GetAsInt64(i)
+		id, _ := idColumn.GetAsString(i)
+		docId, _ := docIdColumn.GetAsString(i)
 		sliceId, _ := sliceIdColumn.GetAsString(i)
 		content, _ := contentColumn.GetAsString(i)
 		res[i] = types.QueriedChunk{

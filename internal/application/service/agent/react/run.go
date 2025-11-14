@@ -19,8 +19,8 @@ import (
 )
 
 type AgentRun struct {
-	AgentId        int64
-	ConversationId int64
+	AgentId        string
+	ConversationId string
 	AgentConfig    types.AgentConfig
 
 	modelService         interfaces.ModelService
@@ -192,7 +192,7 @@ func (a *AgentRun) toolReply(ctx context.Context, toolResult string, toolCallId 
 		ConversationId: a.ConversationId,
 		ToolCallId:     toolCallId,
 	}
-	toolMessageEnt.ID = util.SnowflakeId()
+	toolMessageEnt.ID = util.UUID()
 	toolMessageEnt.CreatedAt = time.Now()
 	a.messageChan <- *toolMessageEnt
 	_ = a.messageRepo.Create(ctx, toolMessageEnt)
@@ -298,7 +298,7 @@ func (a *AgentRun) reAct(ctx context.Context, req types.AgentRunReq) {
 func (a *AgentRun) sendAndReceive(ctx context.Context, messages []*chat.Message) {
 	// 发送消息，接受stream
 	currentMessage := &types.Message{
-		BaseEntity:     types.BaseEntity{ID: util.SnowflakeId()},
+		BaseEntity:     types.BaseEntity{ID: util.UUID()},
 		Role:           chat.RoleAssistant,
 		ConversationId: a.ConversationId,
 	}

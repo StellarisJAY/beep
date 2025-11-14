@@ -114,8 +114,8 @@ func (u *UserServiceImpl) Login(ctx context.Context, req types.LoginReq) (*types
 }
 
 func (u *UserServiceImpl) GetLoginInfo(ctx context.Context) (*types.LoginResp, error) {
-	workspaceId := ctx.Value(types.WorkspaceIdContextKey).(int64)
-	userId := ctx.Value(types.UserIdContextKey).(int64)
+	workspaceId := ctx.Value(types.WorkspaceIdContextKey).(string)
+	userId := ctx.Value(types.UserIdContextKey).(string)
 	workspace, err := u.workspaceRepo.FindById(ctx, workspaceId)
 	if err != nil {
 		return nil, errors.NewInternalServerError("查询登录信息失败", err)

@@ -32,15 +32,15 @@ func NewWorkspaceService(workspaceRepo interfaces.WorkspaceRepo,
 	}
 }
 
-func (w *WorkspaceService) FindById(ctx context.Context, id int64) (*types.Workspace, error) {
+func (w *WorkspaceService) FindById(ctx context.Context, id string) (*types.Workspace, error) {
 	return w.workspaceRepo.FindById(ctx, id)
 }
 
-func (w *WorkspaceService) ListMembers(ctx context.Context, workspaceId int64) ([]*types.WorkspaceMember, error) {
+func (w *WorkspaceService) ListMembers(ctx context.Context, workspaceId string) ([]*types.WorkspaceMember, error) {
 	return w.userWorkspaceRepo.ListMember(ctx, workspaceId)
 }
 
-func (w *WorkspaceService) ListByUserId(ctx context.Context, userId int64) ([]*types.Workspace, error) {
+func (w *WorkspaceService) ListByUserId(ctx context.Context, userId string) ([]*types.Workspace, error) {
 	return w.userWorkspaceRepo.FindUserJoinedWorkspace(ctx, userId)
 }
 
@@ -80,9 +80,9 @@ func (w *WorkspaceService) InviteMember(ctx context.Context, req types.InviteWor
 	return nil
 }
 
-func (w *WorkspaceService) SwitchWorkspace(ctx context.Context, id int64) error {
+func (w *WorkspaceService) SwitchWorkspace(ctx context.Context, id string) error {
 	// 获取登录用户的id
-	userId, _ := ctx.Value(types.UserIdContextKey).(int64)
+	userId, _ := ctx.Value(types.UserIdContextKey).(string)
 	token, _ := ctx.Value(types.AccessTokenContextKey).(string)
 	// 查询是否已加入工作空间
 	uw, err := w.userWorkspaceRepo.Find(ctx, id, userId)
@@ -106,7 +106,7 @@ func (w *WorkspaceService) SetRole(ctx context.Context, req types.SetWorkspaceRo
 		return errors.NewBadRequestError("无效的角色", nil)
 	}
 	// 获取登录用户的id，判断是否是admin或owner
-	userId, _ := ctx.Value(types.UserIdContextKey).(int64)
+	userId, _ := ctx.Value(types.UserIdContextKey).(string)
 	uw, _ := w.userWorkspaceRepo.Find(ctx, req.WorkspaceId, userId)
 	if uw == nil || (uw.Role != types.WorkspaceRoleAdmin && uw.Role != types.WorkspaceRoleOwner) {
 		return errors.NewUnauthorizedError("没有权限", nil)

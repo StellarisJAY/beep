@@ -22,7 +22,7 @@ func (u *UserWorkspaceRepo) Create(ctx context.Context, uw *types.UserWorkspace)
 	return u.db.WithContext(ctx).Create(uw).Error
 }
 
-func (u *UserWorkspaceRepo) FindByUser(ctx context.Context, userId int64) ([]*types.UserWorkspace, error) {
+func (u *UserWorkspaceRepo) FindByUser(ctx context.Context, userId string) ([]*types.UserWorkspace, error) {
 	var uw []*types.UserWorkspace
 	err := u.db.WithContext(ctx).Model(&types.UserWorkspace{}).
 		Where("user_id = ?", userId).
@@ -33,7 +33,7 @@ func (u *UserWorkspaceRepo) FindByUser(ctx context.Context, userId int64) ([]*ty
 	return uw, nil
 }
 
-func (u *UserWorkspaceRepo) Find(ctx context.Context, workspaceId, userId int64) (*types.UserWorkspace, error) {
+func (u *UserWorkspaceRepo) Find(ctx context.Context, workspaceId, userId string) (*types.UserWorkspace, error) {
 	var uw *types.UserWorkspace
 	err := u.db.WithContext(ctx).Model(&types.UserWorkspace{}).
 		Where("workspace_id = ? AND user_id = ?", workspaceId, userId).
@@ -44,7 +44,7 @@ func (u *UserWorkspaceRepo) Find(ctx context.Context, workspaceId, userId int64)
 	return uw, nil
 }
 
-func (u *UserWorkspaceRepo) FindByWorkspace(ctx context.Context, workspaceId int64) (*types.UserWorkspace, error) {
+func (u *UserWorkspaceRepo) FindByWorkspace(ctx context.Context, workspaceId string) (*types.UserWorkspace, error) {
 	var uw *types.UserWorkspace
 	err := u.db.WithContext(ctx).Model(&types.UserWorkspace{}).
 		Where("workspace_id = ?", workspaceId).
@@ -55,11 +55,11 @@ func (u *UserWorkspaceRepo) FindByWorkspace(ctx context.Context, workspaceId int
 	return uw, nil
 }
 
-func (u *UserWorkspaceRepo) Delete(ctx context.Context, id int64) error {
+func (u *UserWorkspaceRepo) Delete(ctx context.Context, id string) error {
 	return u.db.WithContext(ctx).Delete(&types.UserWorkspace{}, id).Error
 }
 
-func (u *UserWorkspaceRepo) ListMember(ctx context.Context, workspaceId int64) ([]*types.WorkspaceMember, error) {
+func (u *UserWorkspaceRepo) ListMember(ctx context.Context, workspaceId string) ([]*types.WorkspaceMember, error) {
 	var members []*types.WorkspaceMember
 	err := u.db.WithContext(ctx).Table("user_workspaces uw").
 		Joins("JOIN users u ON u.id = uw.user_id").
@@ -72,7 +72,7 @@ func (u *UserWorkspaceRepo) ListMember(ctx context.Context, workspaceId int64) (
 	return members, nil
 }
 
-func (u *UserWorkspaceRepo) FindUserDefaultWorkspace(ctx context.Context, userId int64) (*types.Workspace, error) {
+func (u *UserWorkspaceRepo) FindUserDefaultWorkspace(ctx context.Context, userId string) (*types.Workspace, error) {
 	var workspace *types.Workspace
 	err := u.db.WithContext(ctx).Model(&types.Workspace{}).
 		Joins("JOIN user_workspaces uw ON uw.workspace_id = workspaces.id").
@@ -85,7 +85,7 @@ func (u *UserWorkspaceRepo) FindUserDefaultWorkspace(ctx context.Context, userId
 	return workspace, nil
 }
 
-func (u *UserWorkspaceRepo) FindUserJoinedWorkspace(ctx context.Context, userId int64) ([]*types.Workspace, error) {
+func (u *UserWorkspaceRepo) FindUserJoinedWorkspace(ctx context.Context, userId string) ([]*types.Workspace, error) {
 	var workspaces []*types.Workspace
 	err := u.db.WithContext(ctx).Model(&types.Workspace{}).
 		Joins("JOIN user_workspaces uw ON uw.workspace_id = workspaces.id").

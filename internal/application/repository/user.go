@@ -28,7 +28,7 @@ func (u *UserRepoImpl) Delete(ctx context.Context, user *types.User) error {
 	return u.db.WithContext(ctx).Delete(user, "id = ?", user.ID).Error
 }
 
-func (u *UserRepoImpl) FindById(ctx context.Context, userId int64) (*types.User, error) {
+func (u *UserRepoImpl) FindById(ctx context.Context, userId string) (*types.User, error) {
 	var user *types.User
 	if err := u.db.WithContext(ctx).
 		Model(&types.User{}).

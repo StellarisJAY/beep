@@ -20,5 +20,5 @@ type VectorStore interface {
 // ParseService 解析服务
 type ParseService interface {
 	Parse(ctx context.Context, info types.ParseInfo) error // 解析文档
-	CancelParse(ctx context.Context, docId int64) error    // 取消解析文档
+	CancelParse(ctx context.Context, docId string) error   // 取消解析文档
 }

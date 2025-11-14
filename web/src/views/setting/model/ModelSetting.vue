@@ -57,7 +57,7 @@
   import ollama_icon from '@/assets/svg/ollama_icon.svg';
   import ModelFactoryConfigModal from '@/components/model/ModelFactoryConfigModal.vue';
 
-  const mcpConfigModalRef = ref();
+  const modelFactoryConfigModalRef = ref();
 
   const modelFactoryTypeOptions = ref([
     { label: 'OpenAI', value: 'openai' },

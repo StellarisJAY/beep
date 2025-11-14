@@ -36,7 +36,7 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		panic(errors.NewBadRequestError("请求参数错误", err))
 	}
 	initSSEWriter(c)
-	if req.AgentID != 0 || req.Agent != nil {
+	if req.AgentID != "" || req.Agent != nil {
 		if err := h.agentService.Run(c.Request.Context(), types.AgentRunReq{
 			AgentId:        req.AgentID,
 			Agent:          req.Agent,

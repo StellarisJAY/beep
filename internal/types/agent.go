@@ -18,13 +18,13 @@ const (
 // Agent 智能体
 type Agent struct {
 	BaseEntity
-	Name         string      `json:"name" gorm:"not null;type:varchar(64);"`         // 智能体名称
-	Description  string      `json:"description" gorm:"not null;type:varchar(255);"` // 智能体描述
-	Type         AgentType   `json:"type" gorm:"not null;"`                          // 智能体类型
-	Config       AgentConfig `json:"config" gorm:"not null;type:json;"`              // 智能体配置
-	WorkspaceId  int64       `json:"workspace_id" gorm:"not null;"`                  // 工作空间ID
-	CreateBy     int64       `json:"create_by"`                                      // 创建人ID
-	LastUpdateBy int64       `json:"last_update_by"`                                 // 最后更新人ID
+	Name         string      `json:"name" gorm:"not null;type:varchar(64);"`           // 智能体名称
+	Description  string      `json:"description" gorm:"not null;type:varchar(255);"`   // 智能体描述
+	Type         AgentType   `json:"type" gorm:"not null;"`                            // 智能体类型
+	Config       AgentConfig `json:"config" gorm:"not null;type:json;"`                // 智能体配置
+	WorkspaceId  string      `json:"workspace_id" gorm:"not null;type:varchar(36);"`   // 工作空间ID
+	CreateBy     string      `json:"create_by" gorm:"not null;type:varchar(36);"`      // 创建人ID
+	LastUpdateBy string      `json:"last_update_by" gorm:"not null;type:varchar(36);"` // 最后更新人ID
 }
 
 func (*Agent) TableName() string {
@@ -35,33 +35,33 @@ func (a *Agent) BeforeCreate(tx *gorm.DB) error {
 	if err := a.BaseEntity.BeforeCreate(tx); err != nil {
 		return err
 	}
-	if a.WorkspaceId == 0 {
+	if a.WorkspaceId == "" {
 		// 从context中获取workspaceId
-		if workspaceId, ok := tx.Statement.Context.Value(WorkspaceIdContextKey).(int64); ok {
+		if workspaceId, ok := tx.Statement.Context.Value(WorkspaceIdContextKey).(string); ok {
 			a.WorkspaceId = workspaceId
 		}
 	}
-	if a.CreateBy == 0 {
-		if userId, ok := tx.Statement.Context.Value(UserIdContextKey).(int64); ok {
+	if a.CreateBy == "" {
+		if userId, ok := tx.Statement.Context.Value(UserIdContextKey).(string); ok {
 			a.CreateBy = userId
 		}
 	}
 	return nil
 }
 
-func (a *Agent) ChatModelId() int64 {
+func (a *Agent) ChatModelId() string {
 	// 从配置中获取聊天模型ID
 	return a.Config.ReAct.ChatModel
 }
 
-func (a *Agent) McpServerIds() []int64 {
+func (a *Agent) McpServerIds() []string {
 	if a.Config.ReAct == nil {
 		return nil
 	}
 	return a.Config.ReAct.McpServers
 }
 
-func (a *Agent) KnowledgeBaseIds() []int64 {
+func (a *Agent) KnowledgeBaseIds() []string {
 	if a.Config.ReAct == nil {
 		return nil
 	}
@@ -82,7 +82,7 @@ type CreateAgentReq struct {
 }
 
 type UpdateAgentReq struct {
-	Id          int64        `json:"id" binding:"required"`
+	Id          string       `json:"id" binding:"required"`
 	Name        string       `json:"name" binding:"required"`
 	Description string       `json:"description" binding:"required"`
 	Config      *AgentConfig `json:"config" binding:"required"`
@@ -121,14 +121,14 @@ type MemoryOption struct {
 
 // ReActAgentConfig 是 ReAct 类型的智能体配置
 type ReActAgentConfig struct {
-	ChatModel       int64           `json:"chat_model,string"` // 聊天模型ID
-	KnowledgeBases  IDArray         `json:"knowledge_bases"`   // 关联的知识库ID列表
-	McpServers      IDArray         `json:"mcp_servers"`       // 关联的MCP服务器ID列表
-	Prompt          string          `json:"prompt"`            // 智能体的提示词
-	MaxIterations   int             `json:"max_iterations"`    // 最大迭代次数
-	MemoryOption    MemoryOption    `json:"memory_option"`     // 记忆选项
-	RetrieverOption RetrieverOption `json:"retriever_option"`  // 知识库检索选项
-	UseSystemTools  bool            `json:"use_system_tools"`  // 是否使用系统工具集
+	ChatModel       string          `json:"chat_model"`       // 聊天模型ID
+	KnowledgeBases  []string        `json:"knowledge_bases"`  // 关联的知识库ID列表
+	McpServers      []string        `json:"mcp_servers"`      // 关联的MCP服务器ID列表
+	Prompt          string          `json:"prompt"`           // 智能体的提示词
+	MaxIterations   int             `json:"max_iterations"`   // 最大迭代次数
+	MemoryOption    MemoryOption    `json:"memory_option"`    // 记忆选项
+	RetrieverOption RetrieverOption `json:"retriever_option"` // 知识库检索选项
+	UseSystemTools  bool            `json:"use_system_tools"` // 是否使用系统工具集
 }
 
 // WorkflowAgentConfig 是 Workflow 类型的智能体配置

@@ -6,17 +6,17 @@ const (
 )
 
 type AgentRunReq struct {
-	AgentId        int64  `json:"agent_id"`
+	AgentId        string `json:"agent_id"`
 	Agent          *Agent `json:"agent"`
-	ConversationId int64  `json:"conversation_id"`
+	ConversationId string `json:"conversation_id"`
 	Query          string `json:"query"`
 	Mode           string `json:"mode"`
 }
 
 type ToolSignal struct {
-	AgentId        int64 `json:"agent_id,string"`
-	ConversationId int64 `json:"conversation_id,string"`
-	Accept         bool  `json:"accept"`
+	AgentId        string `json:"agent_id"`
+	ConversationId string `json:"conversation_id"`
+	Accept         bool   `json:"accept"`
 }
 
 type AgentRunResp struct {

@@ -7,7 +7,7 @@ import (
 	"context"
 )
 
-func GetStaticMemory(ctx context.Context, service interfaces.MemoryService, conversationId int64, windowSize int) ([]*chat.Message, error) {
+func GetStaticMemory(ctx context.Context, service interfaces.MemoryService, conversationId string, windowSize int) ([]*chat.Message, error) {
 	query := types.ShortTermMemoryQuery{
 		ConversationId: conversationId,
 		WindowSize:     windowSize,

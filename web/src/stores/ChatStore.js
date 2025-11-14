@@ -5,7 +5,7 @@ import { getConversationList, getConversationMessages } from '@/services/convers
 export const useChatStore =defineStore('beep-chat-store', {
   state: () => ({
     messages: [],
-    conversationId: "0",
+    conversationId: "",
     agentId: "",
     isLoading: false,
     conversationList: [],
@@ -77,14 +77,14 @@ export const useChatStore =defineStore('beep-chat-store', {
 
     clearSession() {
       this.messages = [];
-      this.conversationId = "0";
+      this.conversationId = "";
       this.agentId = null;
     },
     setAgentId(agentId) {
       this.agentId = agentId;
     },
     isInConversation() {
-      return this.conversationId !== "0";
+      return this.conversationId !== "";
     },
     async openHistoryConversation(conversation) {
       this.conversationId = conversation.id;

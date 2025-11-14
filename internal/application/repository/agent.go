@@ -16,7 +16,7 @@ func (a *AgentRepo) Create(ctx context.Context, agent *types.Agent) error {
 	return a.db.WithContext(ctx).Create(agent).Error
 }
 
-func (a *AgentRepo) FindById(ctx context.Context, id int64) (*types.Agent, error) {
+func (a *AgentRepo) FindById(ctx context.Context, id string) (*types.Agent, error) {
 	var agent *types.Agent
 	err := a.db.WithContext(ctx).Scopes(workspaceScope(ctx)).Where("id = ?", id).First(&agent).Error
 	if err != nil {
@@ -29,7 +29,7 @@ func (a *AgentRepo) Update(ctx context.Context, agent *types.Agent) error {
 	return a.db.WithContext(ctx).Model(agent).Scopes(workspaceScope(ctx)).Where("id=?", agent.ID).Updates(agent).Error
 }
 
-func (a *AgentRepo) Delete(ctx context.Context, id int64) error {
+func (a *AgentRepo) Delete(ctx context.Context, id string) error {
 	return a.db.WithContext(ctx).Scopes(workspaceScope(ctx)).Delete(&types.Agent{}, "id=?", id).Error
 }
 

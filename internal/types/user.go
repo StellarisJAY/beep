@@ -43,6 +43,6 @@ type LoginResp struct {
 }
 
 type LoginInfo struct {
-	UserId      int64 `json:"user_id;string"`
-	WorkspaceId int64 `json:"workspace_id;string"`
+	UserId      string `json:"user_id"`
+	WorkspaceId string `json:"workspace_id"`
 }

@@ -4,7 +4,6 @@ import (
 	"beep/internal/errors"
 	"beep/internal/types"
 	"beep/internal/types/interfaces"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,11 +30,7 @@ func (h *DocumentHandler) CreateFromFile(c *gin.Context) {
 	if !exist {
 		panic(errors.NewBadRequestError("知识库id不能为空", nil))
 	}
-	id, err := strconv.ParseInt(kbId, 10, 64)
-	if err != nil {
-		panic(errors.NewBadRequestError("知识库id格式错误", err))
-	}
-	err = h.service.CreateFromFile(c.Request.Context(), id, file)
+	err = h.service.CreateFromFile(c.Request.Context(), kbId, file)
 	if err != nil {
 		panic(err)
 	}
@@ -66,9 +61,9 @@ func (h *DocumentHandler) Rename(c *gin.Context) {
 }
 
 func (h *DocumentHandler) Delete(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil {
-		panic(errors.NewBadRequestError("", err))
+	id := c.Param("id")
+	if id == "" {
+		panic(errors.NewBadRequestError("id不能为空", nil))
 	}
 	if err := h.service.Delete(c.Request.Context(), id); err != nil {
 		panic(err)
@@ -77,9 +72,9 @@ func (h *DocumentHandler) Delete(c *gin.Context) {
 }
 
 func (h *DocumentHandler) Download(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil {
-		panic(errors.NewBadRequestError("", err))
+	id := c.Param("id")
+	if id == "" {
+		panic(errors.NewBadRequestError("id不能为空", nil))
 	}
 	url, err := h.service.Download(c.Request.Context(), id)
 	if err != nil {
@@ -89,9 +84,9 @@ func (h *DocumentHandler) Download(c *gin.Context) {
 }
 
 func (h *DocumentHandler) Parse(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil {
-		panic(errors.NewBadRequestError("", err))
+	id := c.Param("id")
+	if id == "" {
+		panic(errors.NewBadRequestError("id不能为空", nil))
 	}
 	if err := h.service.Parse(c.Request.Context(), id); err != nil {
 		panic(err)

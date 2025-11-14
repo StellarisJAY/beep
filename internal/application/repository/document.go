@@ -24,7 +24,7 @@ func (d *DocumentRepo) Update(ctx context.Context, document *types.Document) err
 	return d.db.WithContext(ctx).Model(document).Where("id = ?", document.ID).Updates(document).Error
 }
 
-func (d *DocumentRepo) Get(ctx context.Context, id int64) (*types.Document, error) {
+func (d *DocumentRepo) Get(ctx context.Context, id string) (*types.Document, error) {
 	var document types.Document
 	if err := d.db.WithContext(ctx).Scopes(workspaceScope(ctx)).First(&document, "id = ?", id).Error; err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (d *DocumentRepo) Get(ctx context.Context, id int64) (*types.Document, erro
 	return &document, nil
 }
 
-func (d *DocumentRepo) Delete(ctx context.Context, id int64) error {
+func (d *DocumentRepo) Delete(ctx context.Context, id string) error {
 	return d.db.WithContext(ctx).Delete(&types.Document{}, "id = ?", id).Error
 }
 
@@ -57,6 +57,6 @@ func (d *DocumentRepo) List(ctx context.Context, query types.DocumentQuery) ([]*
 	return documents, int(total), nil
 }
 
-func (d *DocumentRepo) DeleteByKnowledgeBaseId(ctx context.Context, knowledgeBaseId int64) error {
+func (d *DocumentRepo) DeleteByKnowledgeBaseId(ctx context.Context, knowledgeBaseId string) error {
 	return d.db.WithContext(ctx).Scopes(workspaceScope(ctx)).Where("knowledge_base_id = ?", knowledgeBaseId).Delete(&types.Document{}).Error
 }

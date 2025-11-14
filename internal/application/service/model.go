@@ -144,7 +144,7 @@ func initModelFactoryDefault() {
 	}
 }
 
-func (m *ModelService) GetModelDetail(ctx context.Context, id int64) (*types.ModelDetail, error) {
+func (m *ModelService) GetModelDetail(ctx context.Context, id string) (*types.ModelDetail, error) {
 	detail, err := m.modelRepo.GetDetail(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("获取模型详情失败", err)

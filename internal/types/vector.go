@@ -15,15 +15,15 @@ type Chunk interface {
 }
 
 type ListChunksQuery struct {
-	DocId    int64 `json:"docId" form:"docId"`
-	Page     bool  `json:"page" form:"page"`
-	PageNum  int64 `json:"pageNum" form:"pageNum"`
-	PageSize int64 `json:"pageSize" form:"pageSize"`
+	DocId    string `json:"docId" form:"docId"`
+	Page     bool   `json:"page" form:"page"`
+	PageNum  int64  `json:"pageNum" form:"pageNum"`
+	PageSize int64  `json:"pageSize" form:"pageSize"`
 }
 
 type QueriedChunk struct {
-	Id            int64   `json:"id"`            // 主键ID
-	DocId         int64   `json:"docId"`         // 文档ID
+	Id            string  `json:"id"`            // 主键ID
+	DocId         string  `json:"docId"`         // 文档ID
 	SliceId       string  `json:"sliceId"`       // 切片ID
 	Content       string  `json:"content"`       // 切片内容
 	Score         float64 `json:"score"`         // 相似度得分
@@ -59,8 +59,8 @@ type SearchReq struct {
 // ParseInfo 文档解析信息
 type ParseInfo struct {
 	Content              []byte              // 文本内容
-	DocId                int64               // 文档ID
-	KbId                 int64               // 知识库ID
+	DocId                string              // 文档ID
+	KbId                 string              // 知识库ID
 	ChunkOptions         ChunkOptions        // 切片选项
 	ChatModel            model.BaseChatModel // 聊天模型
 	EnableKnowledgeGraph bool                // 是否开启知识图谱

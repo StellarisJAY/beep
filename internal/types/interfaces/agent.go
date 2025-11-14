@@ -10,11 +10,11 @@ type AgentRepo interface {
 	// Create 创建智能体
 	Create(ctx context.Context, agent *types.Agent) error
 	// FindById 根据id查询智能体
-	FindById(ctx context.Context, id int64) (*types.Agent, error)
+	FindById(ctx context.Context, id string) (*types.Agent, error)
 	// Update 更新智能体
 	Update(ctx context.Context, agent *types.Agent) error
 	// Delete 删除智能体
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id string) error
 	// List 查询智能体列表
 	List(ctx context.Context, query types.AgentQuery) ([]*types.Agent, error)
 }
@@ -24,11 +24,11 @@ type AgentService interface {
 	// Create 创建智能体
 	Create(ctx context.Context, req types.CreateAgentReq) error
 	// Detail 查询智能体详情
-	Detail(ctx context.Context, id int64) (*types.Agent, error)
+	Detail(ctx context.Context, id string) (*types.Agent, error)
 	// Update 更新智能体
 	Update(ctx context.Context, req types.UpdateAgentReq) error
 	// Delete 删除智能体
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id string) error
 	// List 查询智能体列表
 	List(ctx context.Context, query types.AgentQuery) ([]*types.Agent, error)
 	// Run 运行智能体
@@ -36,5 +36,5 @@ type AgentService interface {
 	// SignalTool 调用智能体工具
 	SignalTool(ctx context.Context, req types.ToolSignal) error
 	// FindById 根据id查询智能体
-	FindById(ctx context.Context, id int64) (*types.AgentDetail, error)
+	FindById(ctx context.Context, id string) (*types.AgentDetail, error)
 }

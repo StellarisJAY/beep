@@ -82,7 +82,7 @@ func (k *KnowledgeBaseService) Update(ctx context.Context, req types.UpdateKnowl
 	return nil
 }
 
-func (k *KnowledgeBaseService) Delete(ctx context.Context, id int64) error {
+func (k *KnowledgeBaseService) Delete(ctx context.Context, id string) error {
 	kb, err := k.knowledgeBaseRepo.FindById(ctx, id)
 	if err != nil {
 		return errors.NewInternalServerError("删除知识库失败", err)

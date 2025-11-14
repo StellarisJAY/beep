@@ -24,7 +24,7 @@ func (m *MCPServerRepo) Update(ctx context.Context, ms *types.MCPServer) error {
 	return m.db.Model(ms).WithContext(ctx).Where("id=?", ms.ID).Updates(ms).Error
 }
 
-func (m *MCPServerRepo) Delete(ctx context.Context, id int64) error {
+func (m *MCPServerRepo) Delete(ctx context.Context, id string) error {
 	return m.db.WithContext(ctx).Delete(&types.MCPServer{}, "id = ?", id).Error
 }
 
@@ -36,7 +36,7 @@ func (m *MCPServerRepo) List(ctx context.Context) ([]*types.MCPServer, error) {
 	return ms, nil
 }
 
-func (m *MCPServerRepo) Get(ctx context.Context, id int64) (*types.MCPServer, error) {
+func (m *MCPServerRepo) Get(ctx context.Context, id string) (*types.MCPServer, error) {
 	var ms *types.MCPServer
 	if err := m.db.WithContext(ctx).Model(&types.MCPServer{}).Scopes(workspaceScope(ctx)).First(&ms, "id = ?", id).Error; err != nil {
 		return nil, err

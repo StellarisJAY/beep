@@ -8,15 +8,15 @@ import (
 )
 
 type BaseEntity struct {
-	ID        int64          `json:"id,string" gorm:"primary_key'"`
+	ID        string         `json:"id" gorm:"primary_key;type:varchar(36);"`
 	CreatedAt time.Time      `json:"created_at,omitempty"`
 	UpdatedAt time.Time      `json:"updated_at,omitempty"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 func (b *BaseEntity) BeforeCreate(tx *gorm.DB) error {
-	if b.ID == 0 {
-		b.ID = util.SnowflakeId()
+	if b.ID == "" {
+		b.ID = util.UUID()
 	}
 	return nil
 }

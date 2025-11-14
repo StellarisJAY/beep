@@ -5,7 +5,6 @@ import (
 	"beep/internal/types"
 	"beep/internal/types/interfaces"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +20,7 @@ func NewWorkspaceHandler(service interfaces.WorkspaceService) *WorkspaceHandler 
 }
 
 func (w *WorkspaceHandler) List(c *gin.Context) {
-	userId := c.GetInt64("user_id")
+	userId := c.GetString("user_id")
 	workspaces, err := w.service.ListByUserId(c.Request.Context(), userId)
 	if err != nil {
 		panic(err)
@@ -30,11 +29,11 @@ func (w *WorkspaceHandler) List(c *gin.Context) {
 }
 
 func (w *WorkspaceHandler) ListMember(c *gin.Context) {
-	workspaceId, err := strconv.ParseInt(c.Query("id"), 10, 64)
-	if err != nil {
-		panic(errors.NewBadRequestError("", err))
+	id := c.Query("id")
+	if id == "" {
+		panic(errors.NewBadRequestError("id不能为空", nil))
 	}
-	members, err := w.service.ListMembers(c.Request.Context(), workspaceId)
+	members, err := w.service.ListMembers(c.Request.Context(), id)
 	if err != nil {
 		panic(err)
 	}
@@ -53,9 +52,9 @@ func (w *WorkspaceHandler) InviteMember(c *gin.Context) {
 }
 
 func (w *WorkspaceHandler) SwitchWorkspace(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil {
-		panic(errors.NewBadRequestError("", err))
+	id := c.Param("id")
+	if id == "" {
+		panic(errors.NewBadRequestError("id不能为空", nil))
 	}
 	if err := w.service.SwitchWorkspace(c.Request.Context(), id); err != nil {
 		panic(err)

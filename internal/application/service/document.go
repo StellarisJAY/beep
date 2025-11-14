@@ -38,7 +38,7 @@ func NewDocumentService(documentRepo interfaces.DocumentRepo,
 }
 
 // CreateFromFile 从文件创建文档
-func (d *DocumentService) CreateFromFile(ctx context.Context, knowledgeBaseId int64, file *multipart.FileHeader) error {
+func (d *DocumentService) CreateFromFile(ctx context.Context, knowledgeBaseId string, file *multipart.FileHeader) error {
 	reader, err := file.Open()
 	if err != nil {
 		return errors.NewInternalServerError("新增文档失败", err)
@@ -67,7 +67,7 @@ func (d *DocumentService) CreateFromFile(ctx context.Context, knowledgeBaseId in
 }
 
 // Delete 删除文档
-func (d *DocumentService) Delete(ctx context.Context, id int64) error {
+func (d *DocumentService) Delete(ctx context.Context, id string) error {
 	document, err := d.documentRepo.Get(ctx, id)
 	if err != nil {
 		return errors.NewInternalServerError("删除文档失败，数据库查询失败", err)
@@ -107,7 +107,7 @@ func (d *DocumentService) Rename(ctx context.Context, req types.RenameDocumentRe
 }
 
 // Download 下载文档,返回文件下载URL
-func (d *DocumentService) Download(ctx context.Context, id int64) (string, error) {
+func (d *DocumentService) Download(ctx context.Context, id string) (string, error) {
 	document, _ := d.documentRepo.Get(ctx, id)
 	if document == nil {
 		return "", errors.NewInternalServerError("下载文档失败，文档不存在", nil)
@@ -124,7 +124,7 @@ func (d *DocumentService) Download(ctx context.Context, id int64) (string, error
 }
 
 // Parse 解析文档，切片、嵌入、存储、生成摘要、构建知识图谱等
-func (d *DocumentService) Parse(ctx context.Context, id int64) error {
+func (d *DocumentService) Parse(ctx context.Context, id string) error {
 	document, _ := d.documentRepo.Get(ctx, id)
 	if document == nil {
 		return errors.NewInternalServerError("解析文档失败，文档不存在", nil)

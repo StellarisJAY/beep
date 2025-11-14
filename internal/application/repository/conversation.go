@@ -24,7 +24,7 @@ func (c *ConversationRepo) List(ctx context.Context, query types.ConversationQue
 	var conversations []*types.Conversation
 	var total int64
 	d := c.db.WithContext(ctx).Model(&types.Conversation{}).Scopes(workspaceScope(ctx))
-	if query.UserId != 0 {
+	if query.UserId != "" {
 		d = d.Where("create_by = ?", query.UserId)
 	}
 	if query.Title != "" {
@@ -40,7 +40,7 @@ func (c *ConversationRepo) List(ctx context.Context, query types.ConversationQue
 	return conversations, int(total), nil
 }
 
-func (c *ConversationRepo) FindById(ctx context.Context, id int64) (*types.Conversation, error) {
+func (c *ConversationRepo) FindById(ctx context.Context, id string) (*types.Conversation, error) {
 	conversation := &types.Conversation{}
 	if err := c.db.WithContext(ctx).First(conversation, id).Error; err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (c *ConversationRepo) FindById(ctx context.Context, id int64) (*types.Conve
 	return conversation, nil
 }
 
-func (c *ConversationRepo) Delete(ctx context.Context, id int64) error {
+func (c *ConversationRepo) Delete(ctx context.Context, id string) error {
 	return c.db.WithContext(ctx).Delete(&types.Conversation{}, "id = ?", id).Error
 }
 
@@ -60,7 +60,7 @@ func (m *MessageRepo) Create(ctx context.Context, message *types.Message) error 
 	return m.db.WithContext(ctx).Create(message).Error
 }
 
-func (m *MessageRepo) List(ctx context.Context, conversationId int64) ([]*types.Message, error) {
+func (m *MessageRepo) List(ctx context.Context, conversationId string) ([]*types.Message, error) {
 	var messages []*types.Message
 	if err := m.db.WithContext(ctx).Where("conversation_id = ?", conversationId).Find(&messages).Error; err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (m *MessageRepo) Search(ctx context.Context, query types.MessageQuery) ([]*
 	return messages, nil
 }
 
-func (m *MessageRepo) Delete(ctx context.Context, id int64) error {
+func (m *MessageRepo) Delete(ctx context.Context, id string) error {
 	return m.db.WithContext(ctx).Delete(&types.Message{}, "id = ?", id).Error
 }
 
@@ -96,7 +96,7 @@ func (m *MessageRepo) Update(ctx context.Context, message *types.Message) error 
 	return m.db.WithContext(ctx).Model(message).Where("id = ?", message.ID).Updates(message).Error
 }
 
-func (c *ConversationRepo) UpdateTitle(ctx context.Context, id int64, title string) error {
+func (c *ConversationRepo) UpdateTitle(ctx context.Context, id string, title string) error {
 	// 更新会话标题
 	return c.db.WithContext(ctx).Model(&types.Conversation{}).Where("id = ?", id).Update("title", title).Error
 }
