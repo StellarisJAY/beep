@@ -17,6 +17,8 @@ type MCPServerRepo interface {
 	Delete(ctx context.Context, id int64) error
 	// List 所有 MCP 服务器
 	List(ctx context.Context) ([]*types.MCPServer, error)
+	// ListWithoutTools 所有 MCP 服务器，不包含工具列表
+	ListWithoutTools(ctx context.Context, query types.MCPServerQuery) ([]*types.MCPServer, error)
 	// Get 根据 ID 获取 MCP 服务器
 	Get(ctx context.Context, id int64) (*types.MCPServer, error)
 }
@@ -30,6 +32,8 @@ type MCPServerService interface {
 	Delete(ctx context.Context, id int64) error
 	// List 所有 MCP 服务器
 	List(ctx context.Context) ([]*types.MCPServer, error)
+	// ListWithoutTools 所有 MCP 服务器，不包含工具列表
+	ListWithoutTools(ctx context.Context, query types.MCPServerQuery) ([]*types.MCPServer, error)
 	// Get 根据 ID 获取 MCP 服务器
 	Get(ctx context.Context, id int64) (*types.MCPServer, error)
 	// ListTools 获取 MCP 服务器工具列表，结果组装到 MCPServer 结构体的 Tools 字段

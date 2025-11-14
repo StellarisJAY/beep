@@ -43,3 +43,21 @@ func (m *MCPServerRepo) Get(ctx context.Context, id int64) (*types.MCPServer, er
 	}
 	return ms, nil
 }
+
+func (m *MCPServerRepo) ListWithoutTools(ctx context.Context, query types.MCPServerQuery) ([]*types.MCPServer, error) {
+	var ms []*types.MCPServer
+	d := m.db.WithContext(ctx).Model(&types.MCPServer{}).Scopes(workspaceScope(ctx))
+	if query.Name != "" {
+		d = d.Where("name like ?", "%"+query.Name+"%")
+	}
+	if query.Url != "" {
+		d = d.Where("url like ?", "%"+query.Url+"%")
+	}
+	if len(query.Ids) > 0 {
+		d = d.Where("id in ?", query.Ids)
+	}
+	if err := d.Find(&ms).Error; err != nil {
+		return nil, err
+	}
+	return ms, nil
+}

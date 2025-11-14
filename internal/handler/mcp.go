@@ -35,10 +35,23 @@ func (h *MCPServerHandler) List(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+	// TODO 优化，批量获取工具列表
 	for _, ms := range result {
 		if err := h.service.ListTools(c.Request.Context(), ms); err != nil {
 			slog.Debug("MCP服务获取工具列表失败", "url", ms.Url, "err", err)
 		}
+	}
+	c.JSON(http.StatusOK, ok().withData(result))
+}
+
+func (h *MCPServerHandler) ListWithoutTools(c *gin.Context) {
+	var query types.MCPServerQuery
+	if err := c.ShouldBindQuery(&query); err != nil {
+		panic(errors.NewBadRequestError("", nil))
+	}
+	result, err := h.service.ListWithoutTools(c.Request.Context(), query)
+	if err != nil {
+		panic(err)
 	}
 	c.JSON(http.StatusOK, ok().withData(result))
 }

@@ -4,6 +4,7 @@ import (
 	"beep/internal/errors"
 	"beep/internal/types"
 	"beep/internal/types/interfaces"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,4 +41,16 @@ func (a *AgentHandler) List(c *gin.Context) {
 		panic(err)
 	}
 	c.JSON(200, ok().withData(agents).withTotal(len(agents)))
+}
+
+func (a *AgentHandler) FindById(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	agent, err := a.service.FindById(c.Request.Context(), id)
+	if err != nil {
+		panic(err)
+	}
+	c.JSON(200, ok().withData(agent))
 }

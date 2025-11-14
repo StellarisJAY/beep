@@ -23,8 +23,10 @@ type ModelFactory struct {
 	Name        string           `json:"name" gorm:"type:varchar(64);not null;"`      // 模型供应商名称
 	Type        ModelFactoryType `json:"type" gorm:"type:varchar(64);not null;"`      // 模型供应商类型
 	BaseUrl     string           `json:"base_url" gorm:"type:varchar(255);not null;"` // 模型供应商基础url
-	APIKey      string           `json:"api_key" gorm:"type:varchar(255);not null;"`  // 模型供应商api key
+	APIKey      string           `json:"api_key" gorm:"type:text;not null;"`          // 模型供应商api key
 	WorkspaceId int64            `json:"workspace_id" gorm:"not null;"`               // 工作空间id
+
+	Models []*Model `json:"models" gorm:"-"` // 模型供应商下的模型
 }
 
 func (*ModelFactory) TableName() string {
@@ -62,6 +64,7 @@ type Model struct {
 	FunctionCall bool      `json:"function_call" gorm:"not null;'"`          // 模型是否支持函数调用
 	FactoryId    int64     `json:"factory_id" gorm:"not null;"`
 	WorkspaceId  int64     `json:"workspace_id" gorm:"not null;"`
+	Status       bool      `json:"status" gorm:"not null;type:bool;default:true;"` // 模型是否可用
 }
 
 func (*Model) TableName() string {

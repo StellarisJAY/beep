@@ -35,4 +35,6 @@ type AgentService interface {
 	Run(ctx context.Context, req types.AgentRunReq) error
 	// SignalTool 调用智能体工具
 	SignalTool(ctx context.Context, req types.ToolSignal) error
+	// FindById 根据id查询智能体
+	FindById(ctx context.Context, id int64) (*types.AgentDetail, error)
 }

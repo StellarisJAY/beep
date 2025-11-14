@@ -69,6 +69,7 @@ func (m *ModelService) CreateFactory(ctx context.Context, req types.CreateModelF
 			MaxTokens:    m.MaxTokens,
 			FunctionCall: m.FunctionCall,
 			FactoryId:    factory.ID,
+			Status:       true,
 		}
 		models = append(models, model)
 	}
@@ -96,7 +97,19 @@ func (m *ModelService) UpdateFactory(ctx context.Context, req types.UpdateModelF
 }
 
 func (m *ModelService) ListFactory(ctx context.Context) ([]*types.ModelFactory, error) {
-	return m.modelFactoryRepo.List(ctx)
+	factories, err := m.modelFactoryRepo.List(ctx)
+	if err != nil {
+		return nil, errors.NewInternalServerError("查询模型供应商失败", err)
+	}
+	for _, factory := range factories {
+		query := types.ListModelQuery{FactoryId: factory.ID}
+		models, err := m.modelRepo.List(ctx, query)
+		if err != nil {
+			return nil, errors.NewInternalServerError("查询模型供应商模型失败", err)
+		}
+		factory.Models = models
+	}
+	return factories, nil
 }
 
 func (m *ModelService) ListModels(ctx context.Context, query types.ListModelQuery) ([]*types.Model, error) {

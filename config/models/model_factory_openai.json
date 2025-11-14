@@ -2,7 +2,7 @@
   "name": "OpenAI",
   "sdk_type": "openai",
   "default_config": {
-    "base_url": "",
+    "base_url": "https://api.openai.com/v1",
     "api_key": ""
   },
   "models": [

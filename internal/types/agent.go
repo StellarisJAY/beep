@@ -54,6 +54,20 @@ func (a *Agent) ChatModelId() int64 {
 	return a.Config.ReAct.ChatModel
 }
 
+func (a *Agent) McpServerIds() []int64 {
+	if a.Config.ReAct == nil {
+		return nil
+	}
+	return a.Config.ReAct.McpServers
+}
+
+func (a *Agent) KnowledgeBaseIds() []int64 {
+	if a.Config.ReAct == nil {
+		return nil
+	}
+	return a.Config.ReAct.KnowledgeBases
+}
+
 type AgentQuery struct {
 	Name       string `form:"name"`
 	Type       string `form:"type"`
@@ -108,8 +122,8 @@ type MemoryOption struct {
 // ReActAgentConfig 是 ReAct 类型的智能体配置
 type ReActAgentConfig struct {
 	ChatModel       int64           `json:"chat_model,string"` // 聊天模型ID
-	KnowledgeBases  []int64         `json:"knowledge_bases"`   // 关联的知识库ID列表
-	McpServers      []int64         `json:"mcp_servers"`       // 关联的MCP服务器ID列表
+	KnowledgeBases  IDArray         `json:"knowledge_bases"`   // 关联的知识库ID列表
+	McpServers      IDArray         `json:"mcp_servers"`       // 关联的MCP服务器ID列表
 	Prompt          string          `json:"prompt"`            // 智能体的提示词
 	MaxIterations   int             `json:"max_iterations"`    // 最大迭代次数
 	MemoryOption    MemoryOption    `json:"memory_option"`     // 记忆选项
@@ -119,4 +133,10 @@ type ReActAgentConfig struct {
 
 // WorkflowAgentConfig 是 Workflow 类型的智能体配置
 type WorkflowAgentConfig struct {
+}
+
+type AgentDetail struct {
+	Agent
+	McpServers     []*MCPServer     `json:"mcp_servers"`     // 关联的MCP服务器列表
+	KnowledgeBases []*KnowledgeBase `json:"knowledge_bases"` // 关联的知识库列表
 }

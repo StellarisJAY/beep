@@ -80,11 +80,14 @@
     border-right: #eaeaea 1px solid;
   }
 
-  .setting-item {
-    width: 100%;
-    height: 40px;
-    line-height: 40px;
-    text-align: center;
-    border-radius: 5px;
+  .content-wrapper {
+    height: 100%;
+    width: 80%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
   }
 </style>

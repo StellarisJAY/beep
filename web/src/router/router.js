@@ -34,6 +34,18 @@ const routes = [
         }
       },
       {
+        name: '智能体配置',
+        path: '/agent-config',
+        component: () => import('@/views/agent/config/AgentConfig.vue'),
+        children: [
+          {
+            name: 'React智能体配置',
+            path: 'react',
+            component: () => import('@/views/agent/config/react/ReActAgentConfig.vue'),
+          },
+        ]
+      },
+      {
         name: '知识库',
         path: '/knowledge',
         component: () => import('@/views/knowledge/index.vue'),

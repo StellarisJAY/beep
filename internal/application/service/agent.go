@@ -12,12 +12,14 @@ import (
 )
 
 type AgentService struct {
-	repo             interfaces.AgentRepo
-	conversationRepo interfaces.ConversationRepo
-	agentRunFactory  interfaces.AgentRunFactory
-	chatService      interfaces.ChatService
-	config           *config.Config
-	modelService     interfaces.ModelService
+	repo              interfaces.AgentRepo
+	conversationRepo  interfaces.ConversationRepo
+	agentRunFactory   interfaces.AgentRunFactory
+	chatService       interfaces.ChatService
+	config            *config.Config
+	modelService      interfaces.ModelService
+	mcpServerRepo     interfaces.MCPServerRepo
+	knowledgeBaseRepo interfaces.KnowledgeBaseRepo
 }
 
 func (a *AgentService) Create(ctx context.Context, req types.CreateAgentReq) error {
@@ -100,7 +102,7 @@ func (a *AgentService) Run(ctx context.Context, req types.AgentRunReq) error {
 
 	// 没有指定会话ID，创建一个新会话
 	if req.ConversationId == 0 {
-		
+
 		conversation := &types.Conversation{
 			AgentId: req.Agent.ID,
 			Title:   string([]rune(req.Query)[:min(len(req.Query), 20)]), // 暂时使用查询作为标题
@@ -192,18 +194,57 @@ func (a *AgentService) SignalTool(ctx context.Context, req types.ToolSignal) err
 	return a.chatService.MessageLoop(ctx, resp.MessageChan, resp.ErrorChan)
 }
 
+func (a *AgentService) FindById(ctx context.Context, id int64) (*types.AgentDetail, error) {
+	agent, err := a.repo.FindById(ctx, id)
+	if err != nil {
+		return nil, errors.NewInternalServerError("查询智能体失败", err)
+	}
+
+	detail := &types.AgentDetail{
+		Agent: *agent,
+	}
+	
+	if len(agent.McpServerIds()) > 0 {
+		// 查询关联的MCP服务器
+		mcpServers, err := a.mcpServerRepo.ListWithoutTools(ctx, types.MCPServerQuery{
+			Ids: agent.McpServerIds(),
+		})
+		if err != nil {
+			return nil, errors.NewInternalServerError("查询MCP服务器失败", err)
+		}
+		detail.McpServers = mcpServers
+	}
+
+	if len(agent.KnowledgeBaseIds()) > 0 {
+		// 查询关联的知识库
+		knowledgeBases, _, err := a.knowledgeBaseRepo.List(ctx, types.KnowledgeBaseQuery{
+			Ids: agent.KnowledgeBaseIds(),
+		})
+		if err != nil {
+			return nil, errors.NewInternalServerError("查询知识库失败", err)
+		}
+		detail.KnowledgeBases = knowledgeBases
+	}
+	return detail, nil
+}
+
 func NewAgentService(repo interfaces.AgentRepo,
 	conversationRepo interfaces.ConversationRepo,
 	agentRunFactory interfaces.AgentRunFactory,
 	chatService interfaces.ChatService,
 	config *config.Config,
-	modelService interfaces.ModelService) interfaces.AgentService {
+	modelService interfaces.ModelService,
+	mcpServerRepo interfaces.MCPServerRepo,
+	knowledgeBaseRepo interfaces.KnowledgeBaseRepo,
+) interfaces.AgentService {
 	return &AgentService{
-		repo:             repo,
-		conversationRepo: conversationRepo,
-		agentRunFactory:  agentRunFactory,
-		chatService:      chatService,
-		config:           config,
-		modelService:     modelService,
+		repo:              repo,
+		conversationRepo:  conversationRepo,
+		agentRunFactory:   agentRunFactory,
+		chatService:       chatService,
+		config:            config,
+		modelService:      modelService,
+		mcpServerRepo:     mcpServerRepo,
+		knowledgeBaseRepo: knowledgeBaseRepo,
 	}
 }

@@ -57,3 +57,9 @@ type MCPToolSet struct {
 	Name  string      `json:"name"`
 	Tools []*mcp.Tool `json:"tools"`
 }
+
+type MCPServerQuery struct {
+	Name string `form:"name"`
+	Url  string `form:"url"`
+	Ids  []int64
+}

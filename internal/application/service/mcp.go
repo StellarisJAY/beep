@@ -151,3 +151,11 @@ func (m *MCPServerService) CallWithElicitation(ctx context.Context, id int64, re
 	}
 	return res, nil
 }
+
+func (m *MCPServerService) ListWithoutTools(ctx context.Context, query types.MCPServerQuery) ([]*types.MCPServer, error) {
+	list, err := m.mcpServerRepo.ListWithoutTools(ctx, query)
+	if err != nil {
+		return nil, errors.NewInternalServerError("获取MCP服务列表失败", err)
+	}
+	return list, nil
+}

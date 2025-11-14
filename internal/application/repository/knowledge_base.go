@@ -34,6 +34,9 @@ func (k *KnowledgeBaseRepo) List(ctx context.Context, query types.KnowledgeBaseQ
 	if query.CreateByMe {
 		d = d.Where("create_by = ?", userId)
 	}
+	if len(query.Ids) > 0 {
+		d = d.Where("id in ?", query.Ids)
+	}
 	if err := d.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}

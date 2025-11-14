@@ -128,6 +128,7 @@ func initModelRouter(r *gin.RouterGroup, params Params) {
 		mcp.GET("/list", params.MCPServerHandler.List)
 		mcp.PUT("/update", params.MCPServerHandler.Update)
 		mcp.DELETE("/delete/:id", params.MCPServerHandler.Delete)
+		mcp.GET("/listWithoutTools", params.MCPServerHandler.ListWithoutTools)
 	}
 }
 
@@ -139,6 +140,7 @@ func initAgentRouter(r *gin.RouterGroup, params Params) {
 		agent.Use(middleware.Auth(params.Config, params.Redis))
 		agent.POST("/create", params.AgentHandler.Create)
 		agent.GET("/list", params.AgentHandler.List)
+		agent.GET("/detail/:id", params.AgentHandler.FindById)
 	}
 	// 智能体对话
 	chat := r.Group("/chat")

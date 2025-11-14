@@ -78,6 +78,7 @@ type KnowledgeBaseQuery struct {
 	BaseQuery
 	Name       string `form:"name"`
 	CreateByMe bool   `form:"create_by_me"`
+	Ids        []int64
 }
 
 type CreateKnowledgeBaseReq struct {
